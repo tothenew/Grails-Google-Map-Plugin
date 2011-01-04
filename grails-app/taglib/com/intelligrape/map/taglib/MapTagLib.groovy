@@ -34,6 +34,11 @@ class MapTagLib {
 	}
 
 	def map = {attrs ->
+		if (!attrs.name && !attrs.field) {
+				throwTagError("Tag map is missing required attribute [name]")
+		}
+
+		String name=attrs.remove("name")
 		String width = attrs.remove("width") ?: config.map.div.width
 		String height = attrs.remove("height") ?: config.map.div.height
 		String lat = attrs.remove("lat") ?: config.map.center.lat
@@ -41,7 +46,7 @@ class MapTagLib {
 		String zoomString = attrs.remove("zoom")
 		Integer zoom = zoomString ? zoomString.toInteger() : config.map.zoom
 		String mapTypeId = attrs.remove("mapTypeId") ?: config.map.mapTypeId
-		Boolean shoHomeMarker=attrs.remove("shoHomeMarker")?:false
+		Boolean showHomeMarker=attrs.remove("showHomeMarker")?.toBoolean()?:false
 
     List mapSettingsList = attrs.collect { k, v -> "$k:$v"}
 		mapSettingsList.addAll(["mapTypeId:${mapTypeId}", "zoom:${zoom}", "center: new google.maps.LatLng(${lat}, ${lng})"])
@@ -49,14 +54,16 @@ class MapTagLib {
 
 		out << """
 		<script type="text/javascript">
-				jQuery(function () {ig_mapInit('mapCanvas',{${mapSettings}}, ${shoHomeMarker})});
+				var ${name};
+				jQuery(function () {${name}=ig_mapInit('${name}_Canvas',{${mapSettings}}, ${showHomeMarker})});
 		</script>
-	<div id="mapCanvas" style="height:${height};width:${width}"></div>
+	<div id="${name}_Canvas" style="height:${height};width:${width}"></div>
 		 """
 	}
 
 	def searchAddressInput={attrs->
 		String inputElementId=attrs.id?:attrs.name
+		String language=attrs.remove("language")
 		Boolean selectFirst=attrs.remove('selectFirst')?: false
 		int minChars=attrs.remove('minChars')?.toInteger()?: 3
 		int cacheLength=attrs.remove('cacheLength')?.toInteger()?:50
@@ -64,10 +71,25 @@ class MapTagLib {
 		boolean scroll=attrs.remove('scroll')?:true
 		int scrollHeight=attrs.remove('scrollHeight')?.toInteger()?:330
 
+		String callBackFunctionPassed=attrs.remove('onComplete')
+		String map=attrs.remove("map")
+		String callBackFunction="function(event, data){"
+		if(callBackFunctionPassed){
+			callBackFunction+="${callBackFunctionPassed}(event,data);"
+		}
+		if(map){
+			callBackFunction+="updateHomeLocationMarker(${map}, jQuery('#${inputElementId}').val());"
+		}
+		callBackFunction+="}"
+
 		out<<g.textField(attrs)
+
+		Map searchAutoCompleteSettingsMap=[selectFirst:selectFirst, minChars:minChars,cacheLength:cacheLength, width:width, scroll:scroll, scrollHeight:scrollHeight]
+//		if(language){searchAutoCompleteSettingsMap+=['lang':language]}
+		String searchSettings="{"+searchAutoCompleteSettingsMap.collect { k, v -> "$k:$v"}.join(",")+"}"
 		out << """
 		<script type="text/javascript">
-				jQuery(function () {initAutoComplete('#${inputElementId}');});
+				jQuery(function () {initAutoComplete('#${inputElementId}',${searchSettings} ${callBackFunction?','+callBackFunction:''});});
 		</script>
 		"""
 
