@@ -1,0 +1,13 @@
+Integrate google map into your grails application
+
+Provides useful tags for :
+
+* Showing Simple map
+* Address autocomplete in text input
+* Location Search
+* Direction search
+* Enable Street view
+* Preloaded markers
+* Ajax based marker loading on change of map view
+* Locate User's location
+* Show circle widget on Map for range search
