@@ -12,19 +12,23 @@
 	<title>Google Map Demo</title>
 </head>
 <body>
-<ig:searchAddressInput name="searchAddress" map="googleMap" width="400"
+Search <ig:searchAddressInput name="searchAddress" map="googleMap" width="400"
 		minChars="3" scrollHeight="400"
 		style="width:400px;" language="sv"
 	  onComplete="testFunction"
-/>
+/> <br/>
 <ig:map
 		name="googleMap"
-		height="400px"
+		height="300px"
 		width="400px"
 		lat="40.689299"
 		lng="-74.044"
 		zoom="13"
 		showHomeMarker="true"
 		mapTypeId="google.maps.MapTypeId.ROADMAP"/>
+
+<ig:directionSearchPanel map="googleMap" panel="directionText"/>
+<div id="directionText"></div>
+
 </body>
 </html>

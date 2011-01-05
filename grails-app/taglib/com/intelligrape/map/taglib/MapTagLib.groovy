@@ -11,20 +11,20 @@ class MapTagLib {
 	def config = grailsApplication.config
 
 	def mapInit = {attrs ->
-		String version=attrs.remove('version')?:config.map.api.version
-		String sensor=attrs.remove('sensor')?:config.map.api.sensor
-		String language=attrs.remove('language')?:config.map.api.language?:null
-		Boolean includeAddressAutoComplete=attrs.remove("addressAutoComplete")?:false
+		String version = attrs.remove('version') ?: config.map.api.version
+		String sensor = attrs.remove('sensor') ?: config.map.api.sensor
+		String language = attrs.remove('language') ?: config.map.api.language ?: null
+		Boolean includeAddressAutoComplete = attrs.remove("addressAutoComplete") ?: false
 		Map mapOptions = [version: version, sensor: sensor]
-		if(language){
-			mapOptions+=[language:language]
+		if (language) {
+			mapOptions += [language: language]
 		}
 
 		out << """
 		<script type="text/javascript" src="${grailsApplication.config.map.api.url}?${mapOptions.collect {k, v -> k + "=" + v}.join("&")}"></script>
 		<script type="text/javascript" src="${resource(dir: 'js', file: 'map.init.js')}"></script>
 		 """
-		if(includeAddressAutoComplete){
+		if (includeAddressAutoComplete) {
 			out << """
 			<script type="text/javascript" src="${resource(dir: 'js/jquery-autocomplete', file: 'geo_autocomplete.js')}"></script>
 			<script type="text/javascript" src="${resource(dir: 'js/jquery-autocomplete', file: 'jquery.autocomplete_geomod.js')}"></script>
@@ -34,11 +34,12 @@ class MapTagLib {
 	}
 
 	def map = {attrs ->
+		//TODO: ask for map div name, don't create own, and should be required field
 		if (!attrs.name && !attrs.field) {
-				throwTagError("Tag map is missing required attribute [name]")
+			throwTagError("Tag map is missing required attribute [name]")
 		}
 
-		String name=attrs.remove("name")
+		String name = attrs.remove("name")
 		String width = attrs.remove("width") ?: config.map.div.width
 		String height = attrs.remove("height") ?: config.map.div.height
 		String lat = attrs.remove("lat") ?: config.map.center.lat
@@ -46,9 +47,9 @@ class MapTagLib {
 		String zoomString = attrs.remove("zoom")
 		Integer zoom = zoomString ? zoomString.toInteger() : config.map.zoom
 		String mapTypeId = attrs.remove("mapTypeId") ?: config.map.mapTypeId
-		Boolean showHomeMarker=attrs.remove("showHomeMarker")?.toBoolean()?:false
+		Boolean showHomeMarker = attrs.remove("showHomeMarker")?.toBoolean() ?: false
 
-    List mapSettingsList = attrs.collect { k, v -> "$k:$v"}
+		List mapSettingsList = attrs.collect { k, v -> "$k:$v"}
 		mapSettingsList.addAll(["mapTypeId:${mapTypeId}", "zoom:${zoom}", "center: new google.maps.LatLng(${lat}, ${lng})"])
 		String mapSettings = mapSettingsList.join(", ")
 
@@ -61,37 +62,63 @@ class MapTagLib {
 		 """
 	}
 
-	def searchAddressInput={attrs->
-		String inputElementId=attrs.id?:attrs.name
-		String language=attrs.remove("language")
-		Boolean selectFirst=attrs.remove('selectFirst')?: false
-		int minChars=attrs.remove('minChars')?.toInteger()?: 3
-		int cacheLength=attrs.remove('cacheLength')?.toInteger()?:50
-		int width=attrs['width']?.toInteger()?:356
-		boolean scroll=attrs.remove('scroll')?:true
-		int scrollHeight=attrs.remove('scrollHeight')?.toInteger()?:330
+	def searchAddressInput = {attrs ->
+		String inputElementId = attrs.id ?: attrs.name
+		String language = attrs.remove("language")
+		Boolean selectFirst = attrs.remove('selectFirst') ?: false
+		int minChars = attrs.remove('minChars')?.toInteger() ?: 3
+		int cacheLength = attrs.remove('cacheLength')?.toInteger() ?: 50
+		int width = attrs['width']?.toInteger() ?: 356
+		boolean scroll = attrs.remove('scroll') ?: true
+		int scrollHeight = attrs.remove('scrollHeight')?.toInteger() ?: 330
 
-		String callBackFunctionPassed=attrs.remove('onComplete')
-		String map=attrs.remove("map")
-		String callBackFunction="function(event, data){"
-		if(callBackFunctionPassed){
-			callBackFunction+="${callBackFunctionPassed}(event,data);"
+		String callBackFunctionPassed = attrs.remove('onComplete')
+		String map = attrs.remove("map")
+		String callBackFunction = "function(event, data){"
+		if (callBackFunctionPassed) {
+			callBackFunction += "${callBackFunctionPassed}(event,data);"
 		}
-		if(map){
-			callBackFunction+="updateHomeLocationMarker(${map}, jQuery('#${inputElementId}').val());"
+		if (map) {
+			callBackFunction += "updateHomeLocationMarker(${map}, jQuery('#${inputElementId}').val());"
 		}
-		callBackFunction+="}"
+		callBackFunction += "}"
 
-		out<<g.textField(attrs)
+		out << g.textField(attrs)
 
-		Map searchAutoCompleteSettingsMap=[selectFirst:selectFirst, minChars:minChars,cacheLength:cacheLength, width:width, scroll:scroll, scrollHeight:scrollHeight]
+		Map searchAutoCompleteSettingsMap = [selectFirst: selectFirst, minChars: minChars, cacheLength: cacheLength, width: width, scroll: scroll, scrollHeight: scrollHeight]
 //		if(language){searchAutoCompleteSettingsMap+=['lang':language]}
-		String searchSettings="{"+searchAutoCompleteSettingsMap.collect { k, v -> "$k:$v"}.join(",")+"}"
+		String searchSettings = "{" + searchAutoCompleteSettingsMap.collect { k, v -> "$k:$v"}.join(",") + "}"
 		out << """
 		<script type="text/javascript">
-				jQuery(function () {initAutoComplete('#${inputElementId}',${searchSettings} ${callBackFunction?','+callBackFunction:''});});
+				jQuery(function () {initAutoComplete('#${inputElementId}',${searchSettings} ${callBackFunction ? ',' + callBackFunction : ''});});
 		</script>
 		"""
 
 	}
+
+	def directionSearchPanel={attrs->
+		String map = attrs.remove("map")
+		String panel = attrs.remove("panel")
+		out<<render(template:'/map/searchPanel', model:[mapVarName:map, panel:panel])
+
+	}
+
+	def directionLink = {attrs, body ->
+		String source     // address or (lat, long) pair
+		String destination // address or (lat, long) pair
+
+		String travelMode
+		String travelUnit
+
+		String map
+
+		String directionDiv
+		 createLink
+		//<a href="#" onClick="showDirection(map, directionDiv, source, destination, mode, unit)
+	}
+
+	def streetView = {
+
+	}
+
 }
