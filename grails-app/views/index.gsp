@@ -12,38 +12,45 @@
 	<title>Google Map Demo</title>
 </head>
 <body>
+<table width="100%">
+	<tr>
+		<td colspan="2">
+			Search : <ig:searchAddressInput name="searchAddress" map="googleMap" width="500"
+					minChars="3" scrollHeight="400"
+					style="width:100%;" language="en"
+					onComplete="testFunction"/> <br/>
+		</td>
+	</tr>
+	<tr>
+		<td style="vertical-align:top; text-align:left;">
+			<ig:map
+					name="googleMap"
+					height="312px"
+					width="576px"
+					lat="40.689299"
+					lng="-74.044"
+					zoom="13"
+					showHomeMarker="true"
+					mapTypeId="google.maps.MapTypeId.ROADMAP"/>
+			<div>
+				<ig:directionLink map="googleMap" destination="Sector 59 Noida" panel="directionText">Show Route from Home marker to Sector 59 Noida</ig:directionLink><br/>
 
-<div>
-	Search : <ig:searchAddressInput name="searchAddress" map="googleMap" width="380"
-			minChars="3" scrollHeight="400"
-			style="width:360px;" language="sv"
-			onComplete="testFunction"/> <br/>
-</div>
-<ig:map
-		name="googleMap"
-		height="300px"
-		width="400px"
-		lat="40.689299"
-		lng="-74.044"
-		zoom="13"
-		showHomeMarker="true"
-		mapTypeId="google.maps.MapTypeId.ROADMAP"/>
+				<ig:directionLink map="googleMap" origin="Connaught Place, New Delhi, Delhi, India" destination="Sector 59 Noida" panel="directionText">Show Route from : Connaught Place, New Delhi, Delhi, India to: Sector 59 Noida</ig:directionLink><br/>
 
-<ig:directionLink map="googleMap" destination="Sector 59 Noida" panel="directionText">Show Route from Home marker to Sector 59 Noida</ig:directionLink><br/>
+				<ig:hideDirection map="googleMap">Hide direction from map only</ig:hideDirection><br/>
+				<ig:hideDirection map="googleMap" panel="directionText">Hide direction from map and empty textual direction</ig:hideDirection><br/>
+				<ig:streetViewLink map="googleMap" address="42.345573,-71.098326">Show Streetview for 42.345573,-71.098326</ig:streetViewLink><br/>
 
-<ig:directionLink map="googleMap" origin="Connaught Place, New Delhi, Delhi, India" destination="Sector 59 Noida" panel="directionText">Show Route from : Connaught Place, New Delhi, Delhi, India to: Sector 59 Noida</ig:directionLink><br/>
+				<ig:streetViewLink map="googleMap" address="761 Harrison Avenue, Boston, Massachusetts, United States">Show Streetview for 761 Harrison Avenue, Boston, Massachusetts, United States</ig:streetViewLink><br/>
 
-<ig:hideDirection map="googleMap">Hide direction from map only</ig:hideDirection><br/>
-<ig:hideDirection map="googleMap" panel="directionText">Hide direction from map and empty textual direction</ig:hideDirection><br/>
-<ig:streetViewLink map="googleMap" address="42.345573,-71.098326">Show Streetview for 42.345573,-71.098326</ig:streetViewLink><br/>
-
-<ig:streetViewLink map="googleMap" address="761 Harrison Avenue, Boston, Massachusetts, United States">Show Streetview for 761 Harrison Avenue, Boston, Massachusetts, United States</ig:streetViewLink><br/>
-
-<ig:hideStreetView map="googleMap">Hide Street view</ig:hideStreetView><br/>
-
-<ig:directionSearchPanel map="googleMap" panel="directionText"/>
-
-<div id="directionText"></div>
-
+				<ig:hideStreetView map="googleMap">Hide Street view</ig:hideStreetView><br/>
+			</div>
+		</td>
+		<td style="vertical-align:top; text-align:left;">
+			<ig:directionSearchPanel map="googleMap" panel="directionText"/>
+			<div id="directionText"></div>
+		</td>
+	</tr>
+</table>
 </body>
 </html>
