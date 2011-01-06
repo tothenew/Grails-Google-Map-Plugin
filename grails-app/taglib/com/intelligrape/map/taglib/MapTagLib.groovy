@@ -34,10 +34,7 @@ class MapTagLib {
 	}
 
 	def map = {attrs ->
-		//TODO: ask for map div name, don't create own, and should be required field
-		if (!attrs.name && !attrs.field) {
-			throwTagError("Tag map is missing required attribute [name]")
-		}
+		checkRequiredAttributes("map", attrs, ["name"])
 
 		String name = attrs.remove("name")
 		String width = attrs.remove("width") ?: config.map.div.width
@@ -63,6 +60,7 @@ class MapTagLib {
 	}
 
 	def searchAddressInput = {attrs ->
+//		checkRequiredAttributes("searchAddressInput", attrs, ["map"])
 		String inputElementId = attrs.id ?: attrs.name
 		String language = attrs.remove("language")
 		Boolean selectFirst = attrs.remove('selectFirst') ?: false
@@ -96,29 +94,36 @@ class MapTagLib {
 
 	}
 
-	def directionSearchPanel={attrs->
+	def directionSearchPanel = {attrs ->
+		checkRequiredAttributes("directionSearchPanel", attrs, ["map"])
 		String map = attrs.remove("map")
 		String panel = attrs.remove("panel")
-		out<<render(template:'/map/searchPanel', model:[mapVarName:map, panel:panel])
+		out << render(template: '/map/searchPanel', model: [mapVarName: map, panel: panel])
 
 	}
 
 	def directionLink = {attrs, body ->
-		String source     // address or (lat, long) pair
-		String destination // address or (lat, long) pair
+		checkRequiredAttributes("directionLink", attrs, ["map", 'destination'])
+		String map = attrs.remove("map")
+		String panel = attrs.remove("panel")
+		String origin = attrs.remove("origin")		 // address or (lat, long) pair
+		String destination = attrs.remove("destination") // address or (lat, long) pair
+		String travelMode = attrs.remove("travelMode") ?: "${config.map.default.travelMode}"
+		String unitSystem = attrs.remove("unitSystem") ?: "${config.map.default.unitSystem}"
 
-		String travelMode
-		String travelUnit
+		String onClickHandler = "showDirection('${origin}', '${destination}', ${travelMode}, ${unitSystem}, ${map}, '${panel}');"
 
-		String map
-
-		String directionDiv
-		 createLink
-		//<a href="#" onClick="showDirection(map, directionDiv, source, destination, mode, unit)
+		out << "<a href=\"#\" onClick=\"${onClickHandler}\" >${body()}</a>"
 	}
 
 	def streetView = {
 
 	}
 
+	private void checkRequiredAttributes(String tagName, def attrs, List requiredAttributesList) {
+		List missingAttributes = requiredAttributesList - attrs.keySet()
+		if (missingAttributes) {
+			throwTagError("Tag ${tagName} is missing required attribute(s) : [${missingAttributes.join(',')}]")
+		}
+	}
 }

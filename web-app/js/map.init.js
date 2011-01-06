@@ -6,8 +6,7 @@ var directionRenderer;
 function ig_mapInit(ig_mapDiv, ig_mapConfiguration, showHomeMarker) {
 	var igGoogleMap = new google.maps.Map(document.getElementById(ig_mapDiv), ig_mapConfiguration);
 	mapConfiguration[igGoogleMap] = new Object();
-	mapConfiguration[igGoogleMap].homeLocation = ig_mapConfiguration['center'];
-	mapConfiguration[igGoogleMap].homeMarker = createMarker(igGoogleMap, mapConfiguration[igGoogleMap].homeLocation);
+	mapConfiguration[igGoogleMap].homeMarker = createMarker(igGoogleMap, ig_mapConfiguration['center']);
 	if (!showHomeMarker) {
 		mapConfiguration[igGoogleMap].homeMarker.setVisible(false);
 	}

@@ -4,7 +4,7 @@
 	%{--<g:javascript library="jquery" plugin="jquery"/>--}%
 	<script type="text/javascript" src="${resource(dir: 'js/jquery', file: 'jquery-1.4.3.js')}"></script>
 	<script type="text/javascript">
-		function testFunction(e,d){
+		function testFunction(e, d) {
 //			alert(d);
 		}
 	</script>
@@ -12,11 +12,13 @@
 	<title>Google Map Demo</title>
 </head>
 <body>
-Search <ig:searchAddressInput name="searchAddress" map="googleMap" width="400"
-		minChars="3" scrollHeight="400"
-		style="width:400px;" language="sv"
-	  onComplete="testFunction"
-/> <br/>
+
+<div>
+	Search : <ig:searchAddressInput name="searchAddress" map="googleMap" width="380"
+			minChars="3" scrollHeight="400"
+			style="width:360px;" language="sv"
+			onComplete="testFunction"/> <br/>
+</div>
 <ig:map
 		name="googleMap"
 		height="300px"
@@ -26,7 +28,11 @@ Search <ig:searchAddressInput name="searchAddress" map="googleMap" width="400"
 		zoom="13"
 		showHomeMarker="true"
 		mapTypeId="google.maps.MapTypeId.ROADMAP"/>
-
+<ig:directionLink
+		map="googleMap"
+		origin="Connaught Place, New Delhi, Delhi, India"
+		destination="Sector 59 Noida"
+		panel="directionText">Show Route</ig:directionLink>
 <ig:directionSearchPanel map="googleMap" panel="directionText"/>
 <div id="directionText"></div>
 

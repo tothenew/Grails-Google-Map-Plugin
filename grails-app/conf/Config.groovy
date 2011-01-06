@@ -14,6 +14,9 @@ map.center.lng= "77.235"
 map.zoom= 10
 map.myTypeId="google.maps.MapTypeId.ROADMAP"
 
+map.default.travelMode="google.maps.DirectionsTravelMode.WALKING"
+map.default.unitSystem ="google.maps.DirectionsUnitSystem.METRIC"
+
 log4j = {
     // Example of changing the log pattern for the default console
     // appender:
