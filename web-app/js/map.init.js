@@ -155,3 +155,11 @@ function hideDirection(map, directionDiv){
 	mapConfiguration[map].directionRenderer.setMap(null)
 	jQuery('#'+directionDiv).empty();
 }
+
+function hideStreetView(map, streetViewDiv){
+	var panorama=map.getStreetView();
+	if(panorama){
+		panorama.setVisible(false);
+	}
+	jQuery('#'+streetViewDiv).empty();
+}

@@ -39,6 +39,8 @@
 
 <ig:streetViewLink map="googleMap" address="761 Harrison Avenue, Boston, Massachusetts, United States">Show Streetview for 761 Harrison Avenue, Boston, Massachusetts, United States</ig:streetViewLink><br/>
 
+<ig:hideStreetView map="googleMap">Hide Street view</ig:hideStreetView><br/>
+
 <ig:directionSearchPanel map="googleMap" panel="directionText"/>
 
 <div id="directionText"></div>

@@ -124,7 +124,7 @@ class MapTagLib {
 	}
 
 	def hideDirection = {attrs, body ->
-		checkRequiredAttributes("directionSearchPanel", attrs, ["map"])
+		checkRequiredAttributes("hideDirection", attrs, ["map"])
 		String map = attrs.remove("map")
 		String panel = attrs.remove("panel")
 
@@ -139,6 +139,16 @@ class MapTagLib {
 		String address = attrs.remove("address")		 // address or (lat, long) pair
 
 		String onClickHandler = "showStreetView('${address}', ${map});"
+
+		out << "<a href=\"#\" onClick=\"${onClickHandler}\" >${body()}</a>"
+	}
+
+	def hideStreetView = {attrs, body ->
+		checkRequiredAttributes("hideStreetView", attrs, ["map"])
+		String map = attrs.remove("map")
+		String panel = attrs.remove("panel")
+
+		String onClickHandler = "hideStreetView(${map}, '${panel}');"
 
 		out << "<a href=\"#\" onClick=\"${onClickHandler}\" >${body()}</a>"
 	}
