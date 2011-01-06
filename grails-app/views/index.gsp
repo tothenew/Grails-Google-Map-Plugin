@@ -28,12 +28,17 @@
 		zoom="13"
 		showHomeMarker="true"
 		mapTypeId="google.maps.MapTypeId.ROADMAP"/>
-<ig:directionLink
-		map="googleMap"
-		origin="Connaught Place, New Delhi, Delhi, India"
-		destination="Sector 59 Noida"
-		panel="directionText">Show Route</ig:directionLink>
+
+<ig:directionLink map="googleMap" destination="Sector 59 Noida" panel="directionText">Show Route from Home marker to Sector 59 Noida</ig:directionLink><br/>
+
+<ig:directionLink map="googleMap" origin="Connaught Place, New Delhi, Delhi, India" destination="Sector 59 Noida" panel="directionText">Show Route from : Connaught Place, New Delhi, Delhi, India to: Sector 59 Noida</ig:directionLink><br/>
+
+<ig:streetViewLink map="googleMap" address="42.345573,-71.098326">Show Streetview for 42.345573,-71.098326</ig:streetViewLink><br/>
+
+<ig:streetViewLink map="googleMap" address="761 Harrison Avenue, Boston, Massachusetts, United States">Show Streetview for 761 Harrison Avenue, Boston, Massachusetts, United States</ig:streetViewLink><br/>
+
 <ig:directionSearchPanel map="googleMap" panel="directionText"/>
+
 <div id="directionText"></div>
 
 </body>

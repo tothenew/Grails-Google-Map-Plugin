@@ -1,6 +1,9 @@
 var mapConfiguration = {};
 var geoCoder;
 var directionService;
+var streetViewService;
+var panorama;
+
 var directionRenderer;
 
 function ig_mapInit(ig_mapDiv, ig_mapConfiguration, showHomeMarker) {
@@ -22,15 +25,31 @@ function initAutoComplete(inputSelector, settings, callback) {
 }
 
 function getGeoCoder() {
-	return geoCoder || new google.maps.Geocoder();
+	if(!geoCoder){
+		geoCoder=new google.maps.Geocoder();
+	}
+	return geoCoder;
 }
 
 function getDirectionService() {
-	return directionService || new google.maps.DirectionsService();
+	if(!directionService){
+		directionService = new google.maps.DirectionsService();
+	}
+	return directionService;
 }
 
 function getDirectionRenderer() {
-	return directionRenderer || new google.maps.DirectionsRenderer();
+	if(!directionRenderer){
+		directionRenderer = new google.maps.DirectionsRenderer();
+	}
+	return directionRenderer;
+}
+
+function getStreetViewService() {
+	if(!streetViewService){
+		streetViewService=new google.maps.StreetViewService();
+	}
+	return streetViewService;
 }
 
 function createMarker(map, position) {
@@ -94,4 +113,40 @@ function showDirection(origin, destination, travelMode, unitSystem, map, panelDi
 			alert("Failed to get direction");
 		}
 	});
+}
+
+function showStreetView(address, map) {
+	codeLatLng(address, function(results){
+		var latLng=results[0].geometry.location;
+		var sv = getStreetViewService();
+		sv.getPanoramaByLocation(latLng, 50, function(data, status) {
+			if (status == google.maps.StreetViewStatus.OK) {
+				var markerPanoID = data.location.pano;
+				panorama = map.getStreetView();
+				panorama.setPano(markerPanoID);
+				panorama.setPov({
+					heading: 270,
+					pitch: 0,
+					zoom: 1
+				});
+				panorama.setVisible(true);
+			} else {
+				alert("No street view available for this location")
+			}
+		});
+
+	});
+}
+
+function codeLatLng(address, callBackFunction) {
+	var addressLookup=getGeoCoder();
+	if (addressLookup) {
+		addressLookup.geocode({'address': address}, function(results, status) {
+			if (status == google.maps.GeocoderStatus.OK) {
+				callBackFunction(results);
+			} else {
+				alert("Failed to geoCode for : "+address+" Status : " + status);
+			}
+		});
+	}
 }
