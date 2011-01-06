@@ -111,19 +111,29 @@ class MapTagLib {
 		String travelMode = attrs.remove("travelMode") ?: "${config.map.default.travelMode}"
 		String unitSystem = attrs.remove("unitSystem") ?: "${config.map.default.unitSystem}"
 
-		String onClickHandler=""
+		String onClickHandler = ""
 
-		if(origin){
+		if (origin) {
 			onClickHandler = "showDirection('${origin}', '${destination}', ${travelMode}, ${unitSystem}, ${map}, '${panel}');"
-		}else{
-			origin="mapConfiguration[$map].homeMarker.getPosition()"
+		} else {
+			origin = "mapConfiguration[$map].homeMarker.getPosition()"
 			onClickHandler = "showDirection(${origin}, '${destination}', ${travelMode}, ${unitSystem}, ${map}, '${panel}');"
 		}
 
 		out << "<a href=\"#\" onClick=\"${onClickHandler}\" >${body()}</a>"
 	}
 
-	def streetViewLink = {attrs, body->
+	def hideDirection = {attrs, body ->
+		checkRequiredAttributes("directionSearchPanel", attrs, ["map"])
+		String map = attrs.remove("map")
+		String panel = attrs.remove("panel")
+
+		String onClickHandler = "hideDirection(${map}, '${panel}');"
+
+		out << "<a href=\"#\" onClick=\"${onClickHandler}\" >${body()}</a>"
+	}
+
+	def streetViewLink = {attrs, body ->
 		checkRequiredAttributes("streetViewLink", attrs, ["map", "address"])
 		String map = attrs.remove("map")
 		String address = attrs.remove("address")		 // address or (lat, long) pair
