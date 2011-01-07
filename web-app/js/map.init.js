@@ -1,4 +1,4 @@
-var mapConfiguration = {};
+var ig_mapConfiguration = {};
 var geoCoder;
 var directionService;
 var streetViewService;
@@ -6,62 +6,67 @@ var panorama;
 
 var directionRenderer;
 
-function ig_mapInit(ig_mapDiv, ig_mapConfiguration, showHomeMarker) {
-	var igGoogleMap = new google.maps.Map(document.getElementById(ig_mapDiv), ig_mapConfiguration);
-	mapConfiguration[igGoogleMap] = new Object();
-	mapConfiguration[igGoogleMap].homeMarker = createMarker(igGoogleMap, ig_mapConfiguration['center']);
+function ig_mapInit(ig_mapDiv, configurationForMap, showHomeMarker) {
+	var igGoogleMap = new google.maps.Map(document.getElementById(ig_mapDiv), configurationForMap);
+	ig_mapConfiguration[igGoogleMap] = new Object();
+	ig_mapConfiguration[igGoogleMap].homeMarker = ig_createMarker(igGoogleMap, configurationForMap['center']);
 	if (!showHomeMarker) {
-		mapConfiguration[igGoogleMap].homeMarker.setVisible(false);
+		ig_mapConfiguration[igGoogleMap].homeMarker.setVisible(false);
 	}
+	ig_mapConfiguration[igGoogleMap].infoWindow = new google.maps.InfoWindow({
+		content:"",
+		size: new google.maps.Size(100, 150)
+	});
+
 	return igGoogleMap;
 }
 
-function initAutoComplete(inputSelector, settings, callback) {
-	jQuery(inputSelector).geo_autocomplete(getGeoCoder(), settings).result(function(_event, _data) {
+function ig_initAutoComplete(inputSelector, settings, callback) {
+	jQuery(inputSelector).geo_autocomplete(ig_getGeoCoder(), settings).result(function(_event, _data) {
 		if (callback) {
 			callback(_event, _data);
 		}
 	});
 }
 
-function getGeoCoder() {
+function ig_getGeoCoder() {
 	if (!geoCoder) {
 		geoCoder = new google.maps.Geocoder();
 	}
 	return geoCoder;
 }
 
-function getDirectionService() {
+function ig_getDirectionService() {
 	if (!directionService) {
 		directionService = new google.maps.DirectionsService();
 	}
 	return directionService;
 }
 
-function getDirectionRenderer(map) {
-	if (!mapConfiguration[map].directionRenderer) {
-		mapConfiguration[map].directionRenderer = new google.maps.DirectionsRenderer();
+function ig_getDirectionRenderer(map) {
+	if (!ig_mapConfiguration[map].directionRenderer) {
+		ig_mapConfiguration[map].directionRenderer = new google.maps.DirectionsRenderer();
 	}
-	return mapConfiguration[map].directionRenderer;
+	return ig_mapConfiguration[map].directionRenderer;
 }
 
-function getStreetViewService() {
+function ig_getStreetViewService() {
 	if (!streetViewService) {
 		streetViewService = new google.maps.StreetViewService();
 	}
 	return streetViewService;
 }
 
-function createMarker(map, position) {
+function ig_createMarker(map, position) {
 	return new google.maps.Marker({map: map, position: position, draggable:true});
 }
 
-function updateHomeLocationMarker(map, address) {
-	addressLookUp = getGeoCoder();
+function ig_updateHomeLocationMarker(map, address) {
+	addressLookUp = ig_getGeoCoder();
 	addressLookUp.geocode({'address': address}, function(results, status) {
 		if (status == google.maps.GeocoderStatus.OK) {
 			if (results[0]) {
-				mapConfiguration[map].homeMarker.setPosition(results[0].geometry.location);
+				ig_mapConfiguration[map].homeMarker.setPosition(results[0].geometry.location);
 				map.setCenter(results[0].geometry.location);
 			} else {
 				alert("No result found");
@@ -86,24 +91,24 @@ function getTravelMode() {
 	return travelModeValue;
 }
 
-function updateDirection(map, panelDivId) {
+function ig_updateDirection(map, panelDivId) {
 	var origin = jQuery('#origin').val();
 	var destination = jQuery('#destination').val();
 	var unitSystem = jQuery('#unitSystem').val();
-	showDirection(origin, destination, getTravelMode(), unitSystem, map, panelDivId);
+	ig_showDirection(origin, destination, getTravelMode(), unitSystem, map, panelDivId);
 }
 
-function showDirection(origin, destination, travelMode, unitSystem, map, panelDivId) {
+function ig_showDirection(origin, destination, travelMode, unitSystem, map, panelDivId) {
 	var request = {
 		origin:origin,
 		destination:destination,
 		travelMode: travelMode || google.maps.DirectionsTravelMode.DRIVING,
 		unitSystem:unitSystem || google.maps.DirectionsUnitSystem.METRIC
 	};
-	directionService = getDirectionService();
+	directionService = ig_getDirectionService();
 	directionService.route(request, function(response, status) {
 		if (status == google.maps.DirectionsStatus.OK) {
-			var directionRenderer = getDirectionRenderer(map);
+			var directionRenderer = ig_getDirectionRenderer(map);
 			if (panelDivId) {
 				directionRenderer.setPanel(document.getElementById(panelDivId));
 			}
@@ -115,10 +120,10 @@ function showDirection(origin, destination, travelMode, unitSystem, map, panelDi
 	});
 }
 
-function showStreetView(address, map) {
-	codeLatLng(address, function(results) {
+function ig_showStreetView(address, map) {
+	ig_codeLatLng(address, function(results) {
 		var latLng = results[0].geometry.location;
-		var sv = getStreetViewService();
+		var sv = ig_getStreetViewService();
 		sv.getPanoramaByLocation(latLng, 50, function(data, status) {
 			if (status == google.maps.StreetViewStatus.OK) {
 				var markerPanoID = data.location.pano;
@@ -138,8 +143,8 @@ function showStreetView(address, map) {
 	});
 }
 
-function codeLatLng(address, callBackFunction) {
-	var addressLookup = getGeoCoder();
+function ig_codeLatLng(address, callBackFunction) {
+	var addressLookup = ig_getGeoCoder();
 	if (addressLookup) {
 		addressLookup.geocode({'address': address}, function(results, status) {
 			if (status == google.maps.GeocoderStatus.OK) {
@@ -151,12 +156,12 @@ function codeLatLng(address, callBackFunction) {
 	}
 }
 
-function hideDirection(map, directionDiv) {
-	mapConfiguration[map].directionRenderer.setMap(null)
+function ig_hideDirection(map, directionDiv) {
+	ig_mapConfiguration[map].directionRenderer.setMap(null)
 	jQuery('#' + directionDiv).empty();
 }
 
-function hideStreetView(map, streetViewDiv) {
+function ig_hideStreetView(map, streetViewDiv) {
 	var panorama = map.getStreetView();
 	if (panorama) {
 		panorama.setVisible(false);
@@ -164,7 +169,7 @@ function hideStreetView(map, streetViewDiv) {
 	jQuery('#' + streetViewDiv).empty();
 }
 
-function updateMarkersOnMap(map, markers, clearOld) {
+function ig_updateMarkersOnMap(map, markers, clearOld) {
 	jQuery(markers).each(function(key, markerInfo) {
 		var configuration = {};
 		configuration.map = map;
@@ -177,15 +182,14 @@ function updateMarkersOnMap(map, markers, clearOld) {
 		});
 
 		var marker = new google.maps.Marker(configuration);
-		var infoWindow = new google.maps.InfoWindow({
-			content:markerInfo.content,
-			size: new google.maps.Size(100, 150)
-		});
+		var infoWindow = ig_mapConfiguration[map].infoWindow;
 
 		google.maps.event.addListener(marker, 'click', function(event) {
+			infoWindow.close();
 			if (typeof markerInfo["clickHandler"] != 'undefined') {
 				(markerInfo["clickHandler"])(map, event);
 			} else {
+				infoWindow.setContent(markerInfo.content)
 				infoWindow.open(map, marker);
 			}
 		});

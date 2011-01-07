@@ -85,7 +85,7 @@ class MapTagLib {
 			callBackFunction += "${callBackFunctionPassed}(event,data);"
 		}
 		if (map) {
-			callBackFunction += "updateHomeLocationMarker(${map}, jQuery('#${inputElementId}').val());"
+			callBackFunction += "ig_updateHomeLocationMarker(${map}, jQuery('#${inputElementId}').val());"
 		}
 		callBackFunction += "}"
 
@@ -97,7 +97,7 @@ class MapTagLib {
 		String searchSettings = "{" + searchAutoCompleteSettingsMap.collect { k, v -> "$k:$v"}.join(",") + "}"
 		out << """
 		<script type="text/javascript">
-				jQuery(function () {initAutoComplete('#${inputElementId}',${searchSettings} ${callBackFunction ? ',' + callBackFunction : ''});});
+				jQuery(function () {ig_initAutoComplete('#${inputElementId}',${searchSettings} ${callBackFunction ? ',' + callBackFunction : ''});});
 		</script>
 		"""
 
@@ -123,21 +123,21 @@ class MapTagLib {
 		String onClickHandler = ""
 
 		if (origin) {
-			onClickHandler = "showDirection('${origin}', '${destination}', ${travelMode}, ${unitSystem}, ${map}, '${panel}');"
+			onClickHandler = "ig_showDirection('${origin}', '${destination}', ${travelMode}, ${unitSystem}, ${map}, '${panel}');"
 		} else {
-			origin = "mapConfiguration[$map].homeMarker.getPosition()"
-			onClickHandler = "showDirection(${origin}, '${destination}', ${travelMode}, ${unitSystem}, ${map}, '${panel}');"
+			origin = "ig_mapConfiguration[$map].homeMarker.getPosition()"
+			onClickHandler = "ig_showDirection(${origin}, '${destination}', ${travelMode}, ${unitSystem}, ${map}, '${panel}');"
 		}
 
 		out << "<a href=\"#\" onClick=\"${onClickHandler}\" >${body()}</a>"
 	}
 
 	def hideDirection = {attrs, body ->
-		checkRequiredAttributes("hideDirection", attrs, ["map"])
+		checkRequiredAttributes("ig_hideDirection", attrs, ["map"])
 		String map = attrs.remove("map")
 		String panel = attrs.remove("panel")
 
-		String onClickHandler = "hideDirection(${map}, '${panel}');"
+		String onClickHandler = "ig_hideDirection(${map}, '${panel}');"
 
 		out << "<a href=\"#\" onClick=\"${onClickHandler}\" >${body()}</a>"
 	}
@@ -147,17 +147,17 @@ class MapTagLib {
 		String map = attrs.remove("map")
 		String address = attrs.remove("address")		 // address or (lat, long) pair
 
-		String onClickHandler = "showStreetView('${address}', ${map});"
+		String onClickHandler = "ig_showStreetView('${address}', ${map});"
 
 		out << "<a href=\"#\" onClick=\"${onClickHandler}\" >${body()}</a>"
 	}
 
 	def hideStreetView = {attrs, body ->
-		checkRequiredAttributes("hideStreetView", attrs, ["map"])
+		checkRequiredAttributes("ig_hideStreetView", attrs, ["map"])
 		String map = attrs.remove("map")
 		String panel = attrs.remove("panel")
 
-		String onClickHandler = "hideStreetView(${map}, '${panel}');"
+		String onClickHandler = "ig_hideStreetView(${map}, '${panel}');"
 
 		out << "<a href=\"#\" onClick=\"${onClickHandler}\" >${body()}</a>"
 	}
@@ -167,7 +167,7 @@ class MapTagLib {
 		String map = attrs.remove("map")
 		def markers = attrs.remove("markers")
 
-		String onClickHandler = "updateMarkersOnMap(${map}, ${markers});"
+		String onClickHandler = "ig_updateMarkersOnMap(${map}, ${markers});"
 		out<<onClickHandler
 	}
 

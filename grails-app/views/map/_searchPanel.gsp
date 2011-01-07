@@ -31,7 +31,7 @@
 	<tr>
 		<td colspan="2">
 			<g:set var="updateLabel" value="${message(code:'directionSearch.button.update', default:'Update')}"/>
-			<input type="button" class="button_img" name="updateDirection" value="${updateLabel}" onclick="updateDirection(${mapVarName}, '${panel}');"/>
+			<input type="button" class="button_img" name="ig_updateDirection" value="${updateLabel}" onclick="ig_updateDirection(${mapVarName}, '${panel}');"/>
 		</td>
 	</tr>
 </table>
