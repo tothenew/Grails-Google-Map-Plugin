@@ -25,29 +25,29 @@ function initAutoComplete(inputSelector, settings, callback) {
 }
 
 function getGeoCoder() {
-	if(!geoCoder){
-		geoCoder=new google.maps.Geocoder();
+	if (!geoCoder) {
+		geoCoder = new google.maps.Geocoder();
 	}
 	return geoCoder;
 }
 
 function getDirectionService() {
-	if(!directionService){
+	if (!directionService) {
 		directionService = new google.maps.DirectionsService();
 	}
 	return directionService;
 }
 
 function getDirectionRenderer(map) {
-	if(!mapConfiguration[map].directionRenderer){
+	if (!mapConfiguration[map].directionRenderer) {
 		mapConfiguration[map].directionRenderer = new google.maps.DirectionsRenderer();
 	}
 	return mapConfiguration[map].directionRenderer;
 }
 
 function getStreetViewService() {
-	if(!streetViewService){
-		streetViewService=new google.maps.StreetViewService();
+	if (!streetViewService) {
+		streetViewService = new google.maps.StreetViewService();
 	}
 	return streetViewService;
 }
@@ -116,8 +116,8 @@ function showDirection(origin, destination, travelMode, unitSystem, map, panelDi
 }
 
 function showStreetView(address, map) {
-	codeLatLng(address, function(results){
-		var latLng=results[0].geometry.location;
+	codeLatLng(address, function(results) {
+		var latLng = results[0].geometry.location;
 		var sv = getStreetViewService();
 		sv.getPanoramaByLocation(latLng, 50, function(data, status) {
 			if (status == google.maps.StreetViewStatus.OK) {
@@ -139,27 +139,55 @@ function showStreetView(address, map) {
 }
 
 function codeLatLng(address, callBackFunction) {
-	var addressLookup=getGeoCoder();
+	var addressLookup = getGeoCoder();
 	if (addressLookup) {
 		addressLookup.geocode({'address': address}, function(results, status) {
 			if (status == google.maps.GeocoderStatus.OK) {
 				callBackFunction(results);
 			} else {
-				alert("Failed to geoCode for : "+address+" Status : " + status);
+				alert("Failed to geoCode for : " + address + " Status : " + status);
 			}
 		});
 	}
 }
 
-function hideDirection(map, directionDiv){
+function hideDirection(map, directionDiv) {
 	mapConfiguration[map].directionRenderer.setMap(null)
-	jQuery('#'+directionDiv).empty();
+	jQuery('#' + directionDiv).empty();
 }
 
-function hideStreetView(map, streetViewDiv){
-	var panorama=map.getStreetView();
-	if(panorama){
+function hideStreetView(map, streetViewDiv) {
+	var panorama = map.getStreetView();
+	if (panorama) {
 		panorama.setVisible(false);
 	}
-	jQuery('#'+streetViewDiv).empty();
+	jQuery('#' + streetViewDiv).empty();
+}
+
+function updateMarkersOnMap(map, markers, clearOld) {
+	jQuery(markers).each(function(key, markerInfo) {
+		var configuration = {};
+		configuration.map = map;
+		configuration.position = new google.maps.LatLng(markerInfo["latitude"], markerInfo["longitude"]);
+		var propertiesList = ["zIndex",	"draggable", "visible", "title", "icon", "shadow", "clickable", "flat", "cursor","raiseOnDrag", "content"]
+		jQuery.each(propertiesList, function(index, property) {
+			if (typeof markerInfo[property] != 'undefined') {
+				configuration[property] = markerInfo[property]
+			}
+		});
+
+		var marker = new google.maps.Marker(configuration);
+		var infoWindow = new google.maps.InfoWindow({
+			content:markerInfo.content,
+			size: new google.maps.Size(100, 150)
+		});
+
+		google.maps.event.addListener(marker, 'click', function(event) {
+			if (typeof markerInfo["clickHandler"] != 'undefined') {
+				(markerInfo["clickHandler"])(map, event);
+			} else {
+				infoWindow.open(map, marker);
+			}
+		});
+	})
 }

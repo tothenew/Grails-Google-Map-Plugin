@@ -162,6 +162,19 @@ class MapTagLib {
 		out << "<a href=\"#\" onClick=\"${onClickHandler}\" >${body()}</a>"
 	}
 
+	def updateMarkersOnMapFunction={attrs->
+		checkRequiredAttributes("updateMarkersOnMap", attrs, ["map", "markers"])
+		String map = attrs.remove("map")
+		def markers = attrs.remove("markers")
+
+		String onClickHandler = "updateMarkersOnMap(${map}, ${markers});"
+		out<<onClickHandler
+	}
+
+	def updateMarkersOnMapLink={attrs, body->
+		out << "<a href=\"#\" onClick=\"${ig.updateMarkersOnMapFunction(attrs)}\" >${body()}</a>"
+	}
+
 	private void checkRequiredAttributes(String tagName, def attrs, List requiredAttributesList) {
 		List missingAttributes = requiredAttributesList - attrs.keySet()
 		if (missingAttributes) {
