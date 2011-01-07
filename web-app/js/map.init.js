@@ -2,21 +2,46 @@ var ig_mapConfiguration = {};
 var geoCoder;
 var directionService;
 var streetViewService;
-var panorama;
 
 var directionRenderer;
 
-function ig_mapInit(ig_mapDiv, configurationForMap, showHomeMarker) {
+function ig_mapInit(ig_mapDiv, configurationForMap, showHomeMarker, latitudeId, longitudeId) {
 	var igGoogleMap = new google.maps.Map(document.getElementById(ig_mapDiv), configurationForMap);
+	var homeMarker;
 	ig_mapConfiguration[igGoogleMap] = new Object();
-	ig_mapConfiguration[igGoogleMap].homeMarker = ig_createMarker(igGoogleMap, configurationForMap['center']);
+	homeMarker = ig_createMarker(igGoogleMap, configurationForMap['center']);
 	if (!showHomeMarker) {
-		ig_mapConfiguration[igGoogleMap].homeMarker.setVisible(false);
+		homeMarker.setVisible(false);
 	}
 	ig_mapConfiguration[igGoogleMap].infoWindow = new google.maps.InfoWindow({
 		content:"",
 		size: new google.maps.Size(100, 150)
 	});
+
+	var latitudeDom = jQuery("#" + latitudeId)
+	var longitudeDom = jQuery("#" + longitudeId)
+
+	if (latitudeDom.length || longitudeDom.length) {
+		google.maps.event.addListener(homeMarker, 'position_changed', function() {
+			var latLng = homeMarker.getPosition();
+			jQuery("#" + latitudeId).val(latLng.lat());
+			jQuery("#" + longitudeId).val(latLng.lng());
+		});
+	}
+
+	/*
+	 var panorama= igGoogleMap.getStreetView();
+
+	 google.maps.event.addListener(panorama, 'pov_changed', function() {
+	 updatePovDataAndPano(panorama.getPov(), panorama.getPano());
+	 });
+
+	 google.maps.event.addListener(panorama, 'pano_changed', function() {
+	 updatePanoId(panorama.getPano());
+	 });
+	 */
+
+	ig_mapConfiguration[igGoogleMap].homeMarker = homeMarker;
 
 	return igGoogleMap;
 }
@@ -195,3 +220,15 @@ function ig_updateMarkersOnMap(map, markers, clearOld) {
 		});
 	})
 }
+
+/*
+function updatePovData(pov) {
+	jQuery('#pov-heading').val(pov.heading);
+	jQuery('#pov-pitch').val(pov.pitch);
+	jQuery('#pov-zoom').val(pov.zoom);
+}
+
+function updatePanoId(panoId) {
+	jQuery('#pov-panoId').val(panoId);
+}
+*/

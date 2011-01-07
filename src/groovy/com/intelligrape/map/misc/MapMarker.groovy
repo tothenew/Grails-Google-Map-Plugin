@@ -18,5 +18,6 @@ class MapMarker {
 	Boolean flat=false	 //	If true, the marker shadow will not be displayed.
 	String cursor	 //Mouse cursor to show on hover
 	Boolean raiseOnDrag=true	 //If false, disables raising and lowering the marker on drag. This option is true by default.
-	String infoWindowText
+	String content
+	String onClickHandler			// Javascript function accepting two arguments map and event
 }

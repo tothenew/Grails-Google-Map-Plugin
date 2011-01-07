@@ -41,6 +41,8 @@
 					homeMarker="${homeMarker}"
 					showHomeMarker="true"
 					mapTypeId="google.maps.MapTypeId.ROADMAP"
+					latitudeId="latitude"
+					longitudeId="longitude"
 			/>
 
 			<div id="map_canvas" style="height:312px;width:576px"></div>
@@ -67,5 +69,9 @@
 		</td>
 	</tr>
 </table>
+<form action="#">
+	<g:hiddenField name="latitude" />
+	<g:hiddenField name="longitude" />
+</form>
 </body>
 </html>

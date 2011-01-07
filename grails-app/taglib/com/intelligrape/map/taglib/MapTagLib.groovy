@@ -45,6 +45,9 @@ class MapTagLib {
 		String mapTypeId = attrs.remove("mapTypeId") ?: config.map.mapTypeId
 		Boolean showHomeMarker = attrs.remove("showHomeMarker")?.toBoolean() ?: false
 
+		String latitudeId=attrs.remove("latitudeId")
+		String longitudeId=attrs.remove("longitudeId")
+
 		MapMarker homeMarker=attrs.remove('homeMarker');
 
 		String latitude = attrs.remove("latitude") ?: config.map.center.lat
@@ -62,7 +65,7 @@ class MapTagLib {
 		out << """
 		<script type="text/javascript">
 				var ${name};
-				jQuery(function () {${name}=ig_mapInit('${mapDivId}',{${mapSettings}}, ${showHomeMarker})});
+				jQuery(function () {${name}=ig_mapInit('${mapDivId}',{${mapSettings}}, ${showHomeMarker},'${latitudeId}', '${longitudeId}')});
 		</script>
 		 """
 	}
