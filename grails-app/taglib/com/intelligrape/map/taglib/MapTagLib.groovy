@@ -1,5 +1,7 @@
 package com.intelligrape.map.taglib
 
+import com.intelligrape.map.misc.MapMarker
+
 /*
 *
 * @author Bhagwat Kumar
@@ -34,28 +36,34 @@ class MapTagLib {
 	}
 
 	def map = {attrs ->
-		checkRequiredAttributes("map", attrs, ["name"])
+		checkRequiredAttributes("map", attrs, ["name", "mapDivId"])
 
 		String name = attrs.remove("name")
-		String width = attrs.remove("width") ?: config.map.div.width
-		String height = attrs.remove("height") ?: config.map.div.height
-		String lat = attrs.remove("lat") ?: config.map.center.lat
-		String lng = attrs.remove("lng") ?: config.map.center.lng
+		String mapDivId=attrs.remove("mapDivId")
 		String zoomString = attrs.remove("zoom")
 		Integer zoom = zoomString ? zoomString.toInteger() : config.map.zoom
 		String mapTypeId = attrs.remove("mapTypeId") ?: config.map.mapTypeId
 		Boolean showHomeMarker = attrs.remove("showHomeMarker")?.toBoolean() ?: false
 
+		MapMarker homeMarker=attrs.remove('homeMarker');
+
+		String latitude = attrs.remove("latitude") ?: config.map.center.lat
+		String longitude = attrs.remove("longitude") ?: config.map.center.lng
+
+		if(homeMarker){
+			latitude=homeMarker.latitude
+			longitude=homeMarker.longitude
+		}
+
 		List mapSettingsList = attrs.collect { k, v -> "$k:$v"}
-		mapSettingsList.addAll(["mapTypeId:${mapTypeId}", "zoom:${zoom}", "center: new google.maps.LatLng(${lat}, ${lng})"])
+		mapSettingsList.addAll(["mapTypeId:${mapTypeId}", "zoom:${zoom}", "center: new google.maps.LatLng(${latitude}, ${longitude})"])
 		String mapSettings = mapSettingsList.join(", ")
 
 		out << """
 		<script type="text/javascript">
 				var ${name};
-				jQuery(function () {${name}=ig_mapInit('${name}_Canvas',{${mapSettings}}, ${showHomeMarker})});
+				jQuery(function () {${name}=ig_mapInit('${mapDivId}',{${mapSettings}}, ${showHomeMarker})});
 		</script>
-	<div id="${name}_Canvas" style="height:${height};width:${width}"></div>
 		 """
 	}
 
@@ -84,6 +92,7 @@ class MapTagLib {
 		out << g.textField(attrs)
 
 		Map searchAutoCompleteSettingsMap = [selectFirst: selectFirst, minChars: minChars, cacheLength: cacheLength, width: width, scroll: scroll, scrollHeight: scrollHeight]
+		//Todo: use lang settings
 //		if(language){searchAutoCompleteSettingsMap+=['lang':language]}
 		String searchSettings = "{" + searchAutoCompleteSettingsMap.collect { k, v -> "$k:$v"}.join(",") + "}"
 		out << """

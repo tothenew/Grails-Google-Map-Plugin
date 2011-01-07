@@ -1,4 +1,4 @@
-<%@ page contentType="text/html;charset=UTF-8" %>
+<%@ page import="com.intelligrape.map.misc.MapMarker" contentType="text/html;charset=UTF-8" %>
 <html>
 <head>
 	%{--<g:javascript library="jquery" plugin="jquery"/>--}%
@@ -17,21 +17,23 @@
 		<td colspan="2">
 			Search : <ig:searchAddressInput name="searchAddress" map="googleMap" width="500"
 					minChars="3" scrollHeight="400"
-					style="width:100%;" language="en"
+					style="width:90%;" language="en"
 					onComplete="testFunction"/> <br/>
 		</td>
 	</tr>
 	<tr>
 		<td style="vertical-align:top; text-align:left;">
+			<g:set var="homeMarker" value="${new MapMarker(latitude: 40.689299, longitude:-74.044)}"/>
 			<ig:map
 					name="googleMap"
-					height="312px"
-					width="576px"
-					lat="40.689299"
-					lng="-74.044"
+					mapDivId="map_canvas"
 					zoom="13"
+					homeMarker="${homeMarker}"
 					showHomeMarker="true"
 					mapTypeId="google.maps.MapTypeId.ROADMAP"/>
+
+			<div id="map_canvas" style="height:312px;width:576px"></div>
+
 			<div>
 				<ig:directionLink map="googleMap" destination="Sector 59 Noida" panel="directionText">Show Route from Home marker to Sector 59 Noida</ig:directionLink><br/>
 
