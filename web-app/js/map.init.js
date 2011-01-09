@@ -25,8 +25,8 @@ function ig_mapInit(ig_mapDiv, configurationForMap, showHomeMarker, latitudeId, 
 		size: new google.maps.Size(100, 150)
 	});
 
-	var latitudeDom = jQuery("#" + latitudeId)
-	var longitudeDom = jQuery("#" + longitudeId)
+	var latitudeDom = jQuery("#" + latitudeId);
+	var longitudeDom = jQuery("#" + longitudeId);
 
 	if (latitudeDom.length || longitudeDom.length) {
 		google.maps.event.addListener(homeMarker, 'position_changed', function() {
@@ -109,13 +109,13 @@ function ig_updateHomeLocationMarker(map, address) {
 	});
 
 }
-function getTravelMode() {
-	var travelModeValue = jQuery('#travel-mode-input').val();
-	if (travelModeValue == 'driving') {
+function getTravelMode(travelModeDomId) {
+	var travelModeValue = jQuery('#'+travelModeDomId).val();
+	if (travelModeValue == 'google.maps.DirectionsTravelMode.DRIVING') {
 		travelModeValue = google.maps.DirectionsTravelMode.DRIVING;
-	} else if (travelModeValue == 'bicycling') {
+	} else if (travelModeValue == 'google.maps.DirectionsTravelMode.BICYCLING') {
 		travelModeValue = google.maps.DirectionsTravelMode.BICYCLING;
-	} else if (travelModeValue == 'walking') {
+	} else if (travelModeValue == 'google.maps.DirectionsTravelMode.WALKING') {
 		travelModeValue = google.maps.DirectionsTravelMode.WALKING;
 	} else {
 		travelModeValue = google.maps.DirectionsTravelMode.WALKING; //Default Mode
@@ -123,26 +123,39 @@ function getTravelMode() {
 	return travelModeValue;
 }
 
-function ig_updateDirection(map, panelDivId) {
-	var origin = jQuery('#origin').val();
-	var destination = jQuery('#destination').val();
-	var unitSystem = jQuery('#unitSystem').val();
-	ig_showDirection(origin, destination, getTravelMode(), unitSystem, map, panelDivId);
+function getUnitSystemMode(unitSystemModeDomId) {
+	var unitSystemModeValue = jQuery('#'+unitSystemModeDomId).val();
+	if (unitSystemModeValue == 'google.maps.DirectionsUnitSystem.IMPERIAL') {
+		unitSystemModeValue = google.maps.DirectionsUnitSystem.IMPERIAL;
+	} else {
+		unitSystemModeValue = google.maps.DirectionsUnitSystem.METRIC; //Default Mode
+	}
+	return unitSystemModeValue;
 }
 
-function ig_showDirection(origin, destination, travelMode, unitSystem, map, panelDivId) {
+function directionSearchHandler(map, directionDiv,originDomId, destinationDomId, travelModeDomId, unitSystemDomId, avoidHighways, avoidTolls){
+	var origin = jQuery('#'+originDomId).val();
+	var destination = jQuery('#'+destinationDomId).val();
+	var travelMode=getTravelMode(travelModeDomId);
+	var unitSystem=getUnitSystemMode(unitSystemDomId);
+	showDirectionHandler(map, directionDiv, origin, destination, travelMode, unitSystem, avoidHighways, avoidTolls);
+}
+
+function showDirectionHandler( map, directionDiv, origin, destination, travelMode, unitSystem, avoidHighways, avoidTolls) {
 	var request = {
 		origin:origin,
 		destination:destination,
-		travelMode: travelMode || google.maps.DirectionsTravelMode.DRIVING,
-		unitSystem:unitSystem || google.maps.DirectionsUnitSystem.METRIC
+		travelMode: travelMode,
+		unitSystem:unitSystem,
+		avoidHighways:avoidHighways,
+		avoidTolls:avoidTolls
 	};
 	directionService = ig_getDirectionService();
 	directionService.route(request, function(response, status) {
 		if (status == google.maps.DirectionsStatus.OK) {
 			var directionRenderer = ig_getDirectionRenderer(map);
-			if (panelDivId) {
-				directionRenderer.setPanel(document.getElementById(panelDivId));
+			if (directionDiv) {
+				directionRenderer.setPanel(document.getElementById(directionDiv));
 			}
 			directionRenderer.setMap(map);
 			directionRenderer.setDirections(response);

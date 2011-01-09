@@ -118,14 +118,6 @@ class MapTagLib {
 
 	}
 
-	def directionSearchPanel = {attrs ->
-		checkRequiredAttributes("directionSearchPanel", attrs, ["map"])
-		String map = attrs.remove("map")
-		String panel = attrs.remove("panel")
-		out << render(template: '/map/searchPanel', model: [mapVarName: map, panel: panel])
-
-	}
-
 	def directionLink = {attrs, body ->
 		checkRequiredAttributes("directionLink", attrs, ["map", 'destination'])
 		String map = attrs.remove("map")
@@ -135,15 +127,14 @@ class MapTagLib {
 		String travelMode = attrs.remove("travelMode") ?: "${config.map.default.travelMode}"
 		String unitSystem = attrs.remove("unitSystem") ?: "${config.map.default.unitSystem}"
 
-		String onClickHandler = ""
+		String onClickHandler = "showDirectionHandler(${map},'${panel}','${origin}', '${destination}', ${travelMode}, ${unitSystem});"
 
 		if (origin) {
-			onClickHandler = "ig_showDirection('${origin}', '${destination}', ${travelMode}, ${unitSystem}, ${map}, '${panel}');"
+			onClickHandler = "showDirectionHandler(${map},'${panel}','${origin}', '${destination}', ${travelMode}, ${unitSystem});"
 		} else {
 			origin = "ig_mapConfiguration[$map].homeMarker.getPosition()"
-			onClickHandler = "ig_showDirection(${origin}, '${destination}', ${travelMode}, ${unitSystem}, ${map}, '${panel}');"
+			onClickHandler = "showDirectionHandler(${map},'${panel}',${origin}, '${destination}', ${travelMode}, ${unitSystem});"
 		}
-
 		out << "<a href=\"#\" onClick=\"${onClickHandler}\" >${body()}</a>"
 	}
 
@@ -189,6 +180,21 @@ class MapTagLib {
 
 	def updateMarkersOnMapLink={attrs, body->
 		out << "<a href=\"#\" onClick=\"${googleMap.updateMarkersOnMapFunction(attrs)}\" >${body()}</a>"
+	}
+
+	def directionSearchHandler={attrs->
+		checkRequiredAttributes("directionSearchHandler", attrs, ["map", "originDomId","destinationDomId"])
+		String map=attrs.remove('map')
+		String panel=attrs.remove('panel')
+		String originDomId=attrs.remove("originDomId")
+		String destinationDomId=attrs.remove("destinationDomId")
+		String travelModeDomId=attrs.remove("travelModeDomId")
+		String unitSystemDomId=attrs.remove("unitSystemDomId")
+		Boolean avoidHighways=attrs.remove("avoidHighways")?:false
+		Boolean avoidTolls=attrs.remove("avoidTolls")?:false
+
+		out<<"directionSearchHandler(${map},'${panel}','${originDomId}','${destinationDomId}','${travelModeDomId}', '${unitSystemDomId}',${avoidHighways}, ${avoidTolls})"
+
 	}
 
 	private void checkRequiredAttributes(String tagName, def attrs, List requiredAttributesList) {

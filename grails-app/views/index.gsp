@@ -7,14 +7,16 @@
 		function testFunction(e, d) {
 //			alert(d);
 		}
-		function rightclickHandler(event){
+		function rightclickHandler(event) {
 //			alert(event)
 		}
 
-		var markersList=[
+		var markersList = [
 			{latitude: 40.689299, longitude: -74.044, draggable: true, content: 'Statue of Liberty'},
 			{latitude: 40.729884, longitude: -73.990988, draggable: true, content: 'Bank', icon:'http://chart.apis.google.com/chart?chst=d_map_pin_icon&chld=dollar|FFFF00'},
-			{latitude: 40.729559678851025, longitude: -73.99074196815491, draggable: false, content: 'Astro Place', clickHandler:function(m,e){alert("Map Zoom is :"+m.getZoom())}},
+			{latitude: 40.729559678851025, longitude: -73.99074196815491, draggable: false, content: 'Astro Place', clickHandler:function(m, e) {
+				alert("Map Zoom is :" + m.getZoom())
+			}},
 			{latitude: 40.730031233910694, longitude: -73.99142861366272, draggable: false, content: 'Bus Stop', icon:'http://chart.apis.google.com/chart?chst=d_map_pin_icon&chld=bus|FFFF00'},
 			{latitude: 40.72968163306612, longitude: -73.9911389350891, draggable: false, content: 'Cafe'},
 			{latitude: 40.698, longitude: -74.0563, draggable: false, content: 'Liberty State Park'}
@@ -46,8 +48,7 @@
 					mapTypeId="google.maps.MapTypeId.ROADMAP"
 					latitudeId="latitude"
 					longitudeId="longitude"
-					eventHandlers="[dblclick:'function(){alert(10)}', rightclick:'rightclickHandler']"
-			/>
+					eventHandlers="[dblclick:'function(){alert(10)}', rightclick:'rightclickHandler']"/>
 
 			<div id="map_canvas" style="height:312px;width:576px"></div>
 
@@ -64,18 +65,55 @@
 
 				<googleMap:hideStreetView map="googleMap">Hide Street view</googleMap:hideStreetView><br/>
 
-				<googleMap:updateMarkersOnMapLink map="googleMap" markers="markersList" clearOld="true" >Load markers</googleMap:updateMarkersOnMapLink>
+				<googleMap:updateMarkersOnMapLink map="googleMap" markers="markersList" clearOld="true">Load markers</googleMap:updateMarkersOnMapLink>
 			</div>
 		</td>
 		<td style="vertical-align:top; text-align:left;">
-			<googleMap:directionSearchPanel map="googleMap" panel="directionText"/>
+			<table>
+				<tr>
+					<td>
+						<g:message code="directionSearch.travelModeText" default="Travel Mode"/> :
+					</td>
+					<td>
+						<select id="travel-mode">
+							<option value="google.maps.DirectionsTravelMode.DRIVING">Driving</option>
+							<option value="google.maps.DirectionsTravelMode.BICYCLING" selected="selected">Bicycling</option>
+							<option value="google.maps.DirectionsTravelMode.WALKING" selected="selected">Walking</option>
+						</select>
+					</td>
+				</tr>
+				<tr>
+					<td>
+						<g:message code="directionSearch.origin.text" default="Origin"/> :
+					</td>
+					<td>
+						<googleMap:searchAddressInput name="origin" size="42" class="inputType" value="Darbhanga, Bihar, India"/>
+					</td>
+				</tr>
+				<tr>
+					<td>
+						<g:message code="directionSearch.destination.text" default="Destination"/> :
+					</td>
+					<td>
+						<googleMap:searchAddressInput name="destination" size="42" class="inputType" value="Madhubani, Bihar, India"/>
+					</td>
+				</tr>
+				<tr>
+					<td colspan="2">
+						<g:set var="updateLabel" value="${message(code:'directionSearch.button.update', default:'Update')}"/>
+						<input type="button" class="button_img" name="ig_updateDirection" value="${updateLabel}"
+								onclick="${googleMap.directionSearchHandler(map: 'googleMap', panel: 'directionText', originDomId: 'origin', destinationDomId: 'destination', travelModeDomId: 'travel-mode')}"/>
+					</td>
+				</tr>
+			</table>
+
 			<div id="directionText"></div>
 		</td>
 	</tr>
 </table>
 <form action="#">
-	<g:hiddenField name="latitude" />
-	<g:hiddenField name="longitude" />
+	<g:hiddenField name="latitude"/>
+	<g:hiddenField name="longitude"/>
 </form>
 </body>
 </html>
