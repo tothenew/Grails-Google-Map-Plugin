@@ -7,6 +7,9 @@
 		function testFunction(e, d) {
 //			alert(d);
 		}
+		function rightclickHandler(event){
+//			alert(event)
+		}
 
 		var markersList=[
 			{latitude: 40.689299, longitude: -74.044, draggable: true, content: 'Statue of Liberty'},
@@ -43,6 +46,7 @@
 					mapTypeId="google.maps.MapTypeId.ROADMAP"
 					latitudeId="latitude"
 					longitudeId="longitude"
+					eventHandlers="[dblclick:'function(){alert(10)}', rightclick:'rightclickHandler']"
 			/>
 
 			<div id="map_canvas" style="height:312px;width:576px"></div>

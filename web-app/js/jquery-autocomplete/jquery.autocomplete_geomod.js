@@ -368,9 +368,9 @@
 				// request handler for google geocoder
 			} else if (options.geocoder) {
 				var _query = lastWord(term);
-				language = options.language || 'sv';
+//				language = options.language || 'sv';
 //				region = options.region || 'se';
-				options.geocoder.geocode({address: _query, language:language}, function(_results, _status) {
+				options.geocoder.geocode({address: _query}, function(_results, _status) {
 					var parsed = options.parse(_results, _status, _query);
 					cache.add(term, parsed);
 					success(term, parsed);

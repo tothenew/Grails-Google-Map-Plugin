@@ -58,6 +58,14 @@ class MapTagLib {
 			longitude=homeMarker.longitude
 		}
 
+		def eventHandlers=attrs.remove("eventHandlers")
+
+		String eventsScript=""
+
+		eventHandlers.each{event, handler->
+			eventsScript+="google.maps.event.addListener(${name}, '${event}', ${handler});\n"
+		}
+
 		List mapSettingsList = attrs.collect { k, v -> "$k:$v"}
 		mapSettingsList.addAll(["mapTypeId:${mapTypeId}", "zoom:${zoom}", "center: new google.maps.LatLng(${latitude}, ${longitude})"])
 		String mapSettings = mapSettingsList.join(", ")
@@ -65,9 +73,13 @@ class MapTagLib {
 		out << """
 		<script type="text/javascript">
 				var ${name};
-				jQuery(function () {${name}=ig_mapInit('${mapDivId}',{${mapSettings}}, ${showHomeMarker},'${latitudeId}', '${longitudeId}')});
+				jQuery(function () {
+				${name}=ig_mapInit('${mapDivId}',{${mapSettings}}, ${showHomeMarker},'${latitudeId}', '${longitudeId}')
+				${eventsScript}
+				});
 		</script>
 		 """
+
 	}
 
 	def searchAddressInput = {attrs ->
