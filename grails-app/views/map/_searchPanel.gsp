@@ -17,7 +17,7 @@
 			<g:message code="directionSearch.origin.text" default="Origin"/> :
 		</td>
 		<td>
-			<ig:searchAddressInput name="origin" size="42" class="inputType"/>
+			<googleMap:searchAddressInput name="origin" size="42" class="inputType"/>
 		</td>
 	</tr>
 	<tr>
@@ -25,7 +25,7 @@
 			<g:message code="directionSearch.destination.text" default="Destination"/> :
 		</td>
 		<td>
-			<ig:searchAddressInput name="destination" size="42" class="inputType"/>
+			<googleMap:searchAddressInput name="destination" size="42" class="inputType"/>
 		</td>
 	</tr>
 	<tr>

@@ -8,11 +8,11 @@ import com.intelligrape.map.misc.MapMarker
 */
 
 class MapTagLib {
-	static namespace = "ig"
+	static namespace = "googleMap"
 
 	def config = grailsApplication.config
 
-	def mapInit = {attrs ->
+	def init = {attrs ->
 		String version = attrs.remove('version') ?: config.map.api.version
 		String sensor = attrs.remove('sensor') ?: config.map.api.sensor
 		String language = attrs.remove('language') ?: config.map.api.language ?: null
@@ -169,13 +169,14 @@ class MapTagLib {
 		checkRequiredAttributes("updateMarkersOnMap", attrs, ["map", "markers"])
 		String map = attrs.remove("map")
 		def markers = attrs.remove("markers")
+		Boolean clearOld=attrs.remove("clearOld")?:true
 
-		String onClickHandler = "ig_updateMarkersOnMap(${map}, ${markers});"
+		String onClickHandler = "ig_updateMarkersOnMap(${map}, ${markers}, ${clearOld});"
 		out<<onClickHandler
 	}
 
 	def updateMarkersOnMapLink={attrs, body->
-		out << "<a href=\"#\" onClick=\"${ig.updateMarkersOnMapFunction(attrs)}\" >${body()}</a>"
+		out << "<a href=\"#\" onClick=\"${googleMap.updateMarkersOnMapFunction(attrs)}\" >${body()}</a>"
 	}
 
 	private void checkRequiredAttributes(String tagName, def attrs, List requiredAttributesList) {

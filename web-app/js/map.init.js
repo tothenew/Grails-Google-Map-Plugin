@@ -1,3 +1,7 @@
+/**
+ * @name Google Map Plugin Utility
+ * @author Bhagwat Kumar
+ */
 var ig_mapConfiguration = {};
 var geoCoder;
 var directionService;
@@ -9,7 +13,10 @@ function ig_mapInit(ig_mapDiv, configurationForMap, showHomeMarker, latitudeId, 
 	var igGoogleMap = new google.maps.Map(document.getElementById(ig_mapDiv), configurationForMap);
 	var homeMarker;
 	ig_mapConfiguration[igGoogleMap] = new Object();
+	ig_mapConfiguration[igGoogleMap].markerManager = null;
+
 	homeMarker = ig_createMarker(igGoogleMap, configurationForMap['center']);
+
 	if (!showHomeMarker) {
 		homeMarker.setVisible(false);
 	}
@@ -194,10 +201,25 @@ function ig_hideStreetView(map, streetViewDiv) {
 	jQuery('#' + streetViewDiv).empty();
 }
 
+function getMarkerManager(map) {
+	var markerManager = ig_mapConfiguration[map].markerManager;
+	if (!markerManager) {
+		markerManager = new MarkerManager(map);
+		ig_mapConfiguration[map].markerManager = markerManager;
+	}
+	return markerManager;
+}
+
 function ig_updateMarkersOnMap(map, markers, clearOld) {
+	markerManager = getMarkerManager(map);
+	if (clearOld) {
+		markerManager.clearMarkers();
+	}
+
+	var markersArrayToBeAddedToClusterer = [];
 	jQuery(markers).each(function(key, markerInfo) {
 		var configuration = {};
-		configuration.map = map;
+//		configuration.map = map;
 		configuration.position = new google.maps.LatLng(markerInfo["latitude"], markerInfo["longitude"]);
 		var propertiesList = ["zIndex",	"draggable", "visible", "title", "icon", "shadow", "clickable", "flat", "cursor","raiseOnDrag", "content"]
 		jQuery.each(propertiesList, function(index, property) {
@@ -218,17 +240,74 @@ function ig_updateMarkersOnMap(map, markers, clearOld) {
 				infoWindow.open(map, marker);
 			}
 		});
-	})
+		markersArrayToBeAddedToClusterer.push(marker);
+	});
+
+	markerManager.addMarkers(markersArrayToBeAddedToClusterer);
 }
 
 /*
-function updatePovData(pov) {
-	jQuery('#pov-heading').val(pov.heading);
-	jQuery('#pov-pitch').val(pov.pitch);
-	jQuery('#pov-zoom').val(pov.zoom);
-}
+ function updatePovData(pov) {
+ jQuery('#pov-heading').val(pov.heading);
+ jQuery('#pov-pitch').val(pov.pitch);
+ jQuery('#pov-zoom').val(pov.zoom);
+ }
 
-function updatePanoId(panoId) {
-	jQuery('#pov-panoId').val(panoId);
+ function updatePanoId(panoId) {
+ jQuery('#pov-panoId').val(panoId);
+ }
+ */
+
+function MarkerManager(m) {
+	var markers_array;
+	var map = m;
+	return {
+		getMap : function() {
+			return map;
+		},
+		addMarkers : function(temp_markers_array) {
+			if (!markers_array) {
+				markers_array = new Array();
+			}
+			for (counter = 0; counter<temp_markers_array.length; counter++) {
+				var marker = temp_markers_array[counter];
+				marker.setMap(map);
+				markers_array.push(marker);
+			}
+			return markers_array;
+		},
+		clearMarkers : function() {
+			if (markers_array) {
+				for (counter = 0; counter<markers_array.length; counter++) {
+					var marker = markers_array[counter];
+					marker.setMap(null)
+				}
+			}
+			markers_array = null;
+		},
+		findMarker : function(lat, lng) {
+			var marker = null;
+			if (markers_array) {
+				for (counter = 0; counter<markers_array.length; counter++) {
+					var temp_marker = markers_array[counter];
+					if (temp_marker.lat() == lat && temp_marker.lng() == lng) {
+						marker = temp_marker;
+						break;
+					}
+				}
+			}
+			return marker;
+		},
+		setVisible:function(isVisible){
+			for (counter = 0; counter<markers_array.length; counter++) {
+				markers_array[counter].setVisible(isVisible)
+			}
+		} ,
+		getMarkers : function() {
+			return markers_array;
+		},
+		getMarkersCount : function() {
+			return markers_array.length || 0;
+		}
+	};
 }
-*/

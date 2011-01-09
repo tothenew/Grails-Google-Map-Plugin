@@ -11,7 +11,7 @@
  * jquery.autocomplete.js requires a minor modification for geo_autocomplete to work, as shown in /lib/jquery.autocomplete_geomod.js
  * 
  */
-;(function($) {
+(function($) {
 
 $.fn.extend({
 	geo_autocomplete: function(_geocoder, _options) {
