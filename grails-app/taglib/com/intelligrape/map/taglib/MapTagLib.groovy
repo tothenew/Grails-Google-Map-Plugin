@@ -23,8 +23,8 @@ class MapTagLib {
 		}
 
 		out << """
-		<script type="text/javascript" src="${grailsApplication.config.map.api.url}?${mapOptions.collect {k, v -> k + "=" + v}.join("&")}"></script>
 		<script type="text/javascript" src="${resource(dir: 'js', file: 'map.init.js')}"></script>
+		<script type="text/javascript" src="${grailsApplication.config.map.api.url}?${mapOptions.collect {k, v -> k + "=" + v}.join("&")}"></script>
 		 """
 		if (includeAddressAutoComplete) {
 			out << """
@@ -74,7 +74,7 @@ class MapTagLib {
 		<script type="text/javascript">
 				var ${name};
 				jQuery(function () {
-				${name}=ig_mapInit('${mapDivId}',{${mapSettings}}, ${showHomeMarker},'${latitudeId}', '${longitudeId}')
+				${name}=googleMapManager.createMap('${mapDivId}',{${mapSettings}}, ${showHomeMarker},'${latitudeId}', '${longitudeId}')
 				${eventsScript}
 				});
 		</script>
@@ -100,7 +100,7 @@ class MapTagLib {
 			callBackFunction += "${callBackFunctionPassed}(event,data);"
 		}
 		if (map) {
-			callBackFunction += "ig_updateHomeLocationMarker(${map}, jQuery('#${inputElementId}').val());"
+			callBackFunction += "googleMapManager.updateHomeLocationMarker(${map}, jQuery('#${inputElementId}').val());"
 		}
 		callBackFunction += "}"
 
@@ -112,7 +112,7 @@ class MapTagLib {
 		String searchSettings = "{" + searchAutoCompleteSettingsMap.collect { k, v -> "$k:$v"}.join(",") + "}"
 		out << """
 		<script type="text/javascript">
-				jQuery(function () {ig_initAutoComplete('#${inputElementId}',${searchSettings} ${callBackFunction ? ',' + callBackFunction : ''});});
+				jQuery(function () {googleMapManager.initAutoComplete('#${inputElementId}',${searchSettings} ${callBackFunction ? ',' + callBackFunction : ''});});
 		</script>
 		"""
 
@@ -127,23 +127,23 @@ class MapTagLib {
 		String travelMode = attrs.remove("travelMode") ?: "${config.map.default.travelMode}"
 		String unitSystem = attrs.remove("unitSystem") ?: "${config.map.default.unitSystem}"
 
-		String onClickHandler = "showDirectionHandler(${map},'${panel}','${origin}', '${destination}', ${travelMode}, ${unitSystem});"
+		String onClickHandler = "googleMapManager.showDirectionHandler(${map},'${panel}','${origin}', '${destination}', ${travelMode}, ${unitSystem});"
 
 		if (origin) {
-			onClickHandler = "showDirectionHandler(${map},'${panel}','${origin}', '${destination}', ${travelMode}, ${unitSystem});"
+			onClickHandler = "googleMapManager.showDirectionHandler(${map},'${panel}','${origin}', '${destination}', ${travelMode}, ${unitSystem});"
 		} else {
-			origin = "ig_mapConfiguration[$map].homeMarker.getPosition()"
-			onClickHandler = "showDirectionHandler(${map},'${panel}',${origin}, '${destination}', ${travelMode}, ${unitSystem});"
+			origin = "googleMapManager.getHomeMarker($map).getPosition()"
+			onClickHandler = "googleMapManager.showDirectionHandler(${map},'${panel}',${origin}, '${destination}', ${travelMode}, ${unitSystem});"
 		}
 		out << "<a href=\"#\" onClick=\"${onClickHandler}\" >${body()}</a>"
 	}
 
 	def hideDirection = {attrs, body ->
-		checkRequiredAttributes("ig_hideDirection", attrs, ["map"])
+		checkRequiredAttributes("hideDirection", attrs, ["map"])
 		String map = attrs.remove("map")
 		String panel = attrs.remove("panel")
 
-		String onClickHandler = "ig_hideDirection(${map}, '${panel}');"
+		String onClickHandler = "googleMapManager.hideDirection(${map}, '${panel}');"
 
 		out << "<a href=\"#\" onClick=\"${onClickHandler}\" >${body()}</a>"
 	}
@@ -153,28 +153,28 @@ class MapTagLib {
 		String map = attrs.remove("map")
 		String address = attrs.remove("address")		 // address or (lat, long) pair
 
-		String onClickHandler = "ig_showStreetView('${address}', ${map});"
+		String onClickHandler = "googleMapManager.showStreetView('${address}', ${map});"
 
 		out << "<a href=\"#\" onClick=\"${onClickHandler}\" >${body()}</a>"
 	}
 
 	def hideStreetView = {attrs, body ->
-		checkRequiredAttributes("ig_hideStreetView", attrs, ["map"])
+		checkRequiredAttributes("hideStreetView", attrs, ["map"])
 		String map = attrs.remove("map")
 		String panel = attrs.remove("panel")
 
-		String onClickHandler = "ig_hideStreetView(${map}, '${panel}');"
+		String onClickHandler = "googleMapManager.hideStreetView(${map}, '${panel}');"
 
 		out << "<a href=\"#\" onClick=\"${onClickHandler}\" >${body()}</a>"
 	}
 
 	def updateMarkersOnMapFunction={attrs->
-		checkRequiredAttributes("updateMarkersOnMap", attrs, ["map", "markers"])
+		checkRequiredAttributes("updateMarkersOnMapFunction", attrs, ["map", "markers"])
 		String map = attrs.remove("map")
 		def markers = attrs.remove("markers")
 		Boolean clearOld=attrs.remove("clearOld")?:true
 
-		String onClickHandler = "ig_updateMarkersOnMap(${map}, ${markers}, ${clearOld});"
+		String onClickHandler = "googleMapManager.updateMarkersOnMap(${map}, ${markers}, ${clearOld});"
 		out<<onClickHandler
 	}
 
@@ -193,7 +193,7 @@ class MapTagLib {
 		Boolean avoidHighways=attrs.remove("avoidHighways")?:false
 		Boolean avoidTolls=attrs.remove("avoidTolls")?:false
 
-		out<<"directionSearchHandler(${map},'${panel}','${originDomId}','${destinationDomId}','${travelModeDomId}', '${unitSystemDomId}',${avoidHighways}, ${avoidTolls})"
+		out<<"googleMapManager.directionSearchHandler(${map},'${panel}','${originDomId}','${destinationDomId}','${travelModeDomId}', '${unitSystemDomId}',${avoidHighways}, ${avoidTolls})"
 
 	}
 

@@ -59,9 +59,9 @@
 
 				<googleMap:hideDirection map="googleMap">Hide direction from map only</googleMap:hideDirection><br/>
 				<googleMap:hideDirection map="googleMap" panel="directionText">Hide direction from map and empty textual direction</googleMap:hideDirection><br/>
-				<googleMap:streetViewLink map="googleMap" address="42.345573,-71.098326">Show Streetview for 42.345573,-71.098326</googleMap:streetViewLink><br/>
+				<googleMap:streetViewLink map="googleMap" address="42.345573,-71.098326">Show Street view for 42.345573,-71.098326</googleMap:streetViewLink><br/>
 
-				<googleMap:streetViewLink map="googleMap" address="761 Harrison Avenue, Boston, Massachusetts, United States">Show Streetview for 761 Harrison Avenue, Boston, Massachusetts, United States</googleMap:streetViewLink><br/>
+				<googleMap:streetViewLink map="googleMap" address="761 Harrison Avenue, Boston, Massachusetts, United States">Show Street view for 761 Harrison Avenue, Boston, Massachusetts, United States</googleMap:streetViewLink><br/>
 
 				<googleMap:hideStreetView map="googleMap">Hide Street view</googleMap:hideStreetView><br/>
 
@@ -101,7 +101,7 @@
 				<tr>
 					<td colspan="2">
 						<g:set var="updateLabel" value="${message(code:'directionSearch.button.update', default:'Update')}"/>
-						<input type="button" class="button_img" name="ig_updateDirection" value="${updateLabel}"
+						<input type="button" class="button_img" name="updateDirection" value="${updateLabel}"
 								onclick="${googleMap.directionSearchHandler(map: 'googleMap', panel: 'directionText', originDomId: 'origin', destinationDomId: 'destination', travelModeDomId: 'travel-mode')}"/>
 					</td>
 				</tr>
