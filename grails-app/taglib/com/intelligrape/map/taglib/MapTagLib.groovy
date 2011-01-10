@@ -39,6 +39,7 @@ class MapTagLib {
 		checkRequiredAttributes("map", attrs, ["name", "mapDivId"])
 
 		String name = attrs.remove("name")
+		String panorama = attrs.remove("panorama")?:'panorama'
 		String mapDivId=attrs.remove("mapDivId")
 		String zoomString = attrs.remove("zoom")
 		Integer zoom = zoomString ? zoomString.toInteger() : config.map.zoom
@@ -58,12 +59,18 @@ class MapTagLib {
 			longitude=homeMarker.longitude
 		}
 
-		def eventHandlers=attrs.remove("eventHandlers")
+		def mapEventHandlers =attrs.remove("mapEventHandlers")
 
 		String eventsScript=""
 
-		eventHandlers.each{event, handler->
+		mapEventHandlers.each{event, handler->
 			eventsScript+="google.maps.event.addListener(${name}, '${event}', ${handler});\n"
+		}
+
+		def streetViewEventHandlers=attrs.remove("streetViewEventHandlers")
+
+		streetViewEventHandlers.each{event, handler->
+			eventsScript+="google.maps.event.addListener(${panorama}, '${event}', ${handler});\n"
 		}
 
 		List mapSettingsList = attrs.collect { k, v -> "$k:$v"}
@@ -75,6 +82,7 @@ class MapTagLib {
 				var ${name};
 				jQuery(function () {
 				${name}=googleMapManager.createMap('${mapDivId}',{${mapSettings}}, ${showHomeMarker},'${latitudeId}', '${longitudeId}')
+				var ${panorama}=${name}.getStreetView();
 				${eventsScript}
 				});
 		</script>

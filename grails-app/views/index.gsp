@@ -10,7 +10,9 @@
 		function rightclickHandler(event) {
 //			alert(event)
 		}
-
+		function streetViewVisibilityChanged(){
+//			alert("Street view visibility changed")
+		}
 		var markersList = [
 			{latitude: 40.689299, longitude: -74.044, draggable: true, content: 'Statue of Liberty'},
 			{latitude: 40.729884, longitude: -73.990988, draggable: true, content: 'Bank', icon:'http://chart.apis.google.com/chart?chst=d_map_pin_icon&chld=dollar|FFFF00'},
@@ -48,7 +50,8 @@
 					mapTypeId="google.maps.MapTypeId.ROADMAP"
 					latitudeId="latitude"
 					longitudeId="longitude"
-					eventHandlers="[dblclick:'function(){alert(10)}', rightclick:'rightclickHandler']"/>
+				  streetViewEventHandlers="[visible_changed 	:'streetViewVisibilityChanged']"
+					mapEventHandlers="[dblclick:'function(){alert(10)}', rightclick:'rightclickHandler']"/>
 
 			<div id="map_canvas" style="height:312px;width:576px"></div>
 
