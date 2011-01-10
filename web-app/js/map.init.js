@@ -226,7 +226,7 @@ function GoogleMapManager() {
 			jQuery('#' + streetViewDiv).empty();
 		},
 
-		showStreetView: function (address, map) {
+		showStreetView: function (address, map, errorHandlerCallback, caller) {
 			codeLatLng(address, function(results) {
 				var latLng = results[0].geometry.location;
 				var sv = getStreetViewService();
@@ -243,7 +243,11 @@ function GoogleMapManager() {
 						panorama.setVisible(true);
 					} else {
 						//TODO: there should be a callback
-						alert(messages["noStreetViewAvailable"])
+						if(errorHandlerCallback){
+							errorHandlerCallback(caller)
+						}else{
+							alert(messages["noStreetViewAvailable"])
+						}
 					}
 				});
 			});

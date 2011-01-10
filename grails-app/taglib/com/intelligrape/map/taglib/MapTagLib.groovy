@@ -160,8 +160,10 @@ class MapTagLib {
 		checkRequiredAttributes("streetViewLink", attrs, ["map", "address"])
 		String map = attrs.remove("map")
 		String address = attrs.remove("address")		 // address or (lat, long) pair
+		String errorHandler=attrs.remove('errorHandler');
+		String errorHandlerStatement=errorHandler?",${errorHandler},this":''
 
-		String onClickHandler = "googleMapManager.showStreetView('${address}', ${map});"
+		String onClickHandler = "googleMapManager.showStreetView('${address}', ${map}${errorHandlerStatement});"
 
 		out << "<a href=\"#\" onClick=\"${onClickHandler}\" >${body()}</a>"
 	}

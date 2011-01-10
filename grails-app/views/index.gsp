@@ -13,6 +13,10 @@
 		function streetViewVisibilityChanged(){
 //			alert("Street view visibility changed")
 		}
+
+		function streetViewErrorHandler(x){
+//			console.debug(jQuery(x).text());
+		}
 		var markersList = [
 			{latitude: 40.689299, longitude: -74.044, draggable: true, content: 'Statue of Liberty'},
 			{latitude: 40.729884, longitude: -73.990988, draggable: true, content: 'Bank', icon:'http://chart.apis.google.com/chart?chst=d_map_pin_icon&chld=dollar|FFFF00'},
@@ -65,6 +69,8 @@
 				<googleMap:streetViewLink map="googleMap" address="42.345573,-71.098326">Show Street view for 42.345573,-71.098326</googleMap:streetViewLink><br/>
 
 				<googleMap:streetViewLink map="googleMap" address="761 Harrison Avenue, Boston, Massachusetts, United States">Show Street view for 761 Harrison Avenue, Boston, Massachusetts, United States</googleMap:streetViewLink><br/>
+
+				<googleMap:streetViewLink map="googleMap" address="Sector 59 Noida" errorHandler="streetViewErrorHandler">Show Street view for Sector 59 Noida</googleMap:streetViewLink><br/>
 
 				<googleMap:hideStreetView map="googleMap">Hide Street view</googleMap:hideStreetView><br/>
 
