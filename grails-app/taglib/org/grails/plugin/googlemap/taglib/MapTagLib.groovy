@@ -1,4 +1,4 @@
-package com.intelligrape.map.taglib
+package org.grails.plugin.googlemap.taglib
 
 import com.intelligrape.map.misc.MapMarker
 
