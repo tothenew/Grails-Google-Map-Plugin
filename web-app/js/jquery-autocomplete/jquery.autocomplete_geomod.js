@@ -368,9 +368,15 @@
 				// request handler for google geocoder
 			} else if (options.geocoder) {
 				var _query = lastWord(term);
-//				language = options.language || 'sv';
-//				region = options.region || 'se';
-				options.geocoder.geocode({address: _query}, function(_results, _status) {
+				var configuration = {};
+				configuration.address=_query;
+				if(options.language){
+					configuration.language=options.language;
+				}
+				if(options.region){
+					configuration.region=options.region;
+				}
+				options.geocoder.geocode(configuration, function(_results, _status) {
 					var parsed = options.parse(_results, _status, _query);
 					cache.add(term, parsed);
 					success(term, parsed);

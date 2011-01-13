@@ -186,6 +186,13 @@ function GoogleMapManager() {
 		return unitSystemModeValue;
 	}
 
+	function showStreetViewForConfiguration(map, markerPanoID, povSettings) {
+		panorama = map.getStreetView();
+		panorama.setPano(markerPanoID);
+		panorama.setPov(povSettings);
+		panorama.setVisible(true);
+	}
+
 	return {
 
 		initAutoComplete:function(inputSelector, settings, callback) {
@@ -226,31 +233,30 @@ function GoogleMapManager() {
 			jQuery('#' + streetViewDiv).empty();
 		},
 
-		showStreetView: function (address, map, errorHandlerCallback, caller) {
-			codeLatLng(address, function(results) {
-				var latLng = results[0].geometry.location;
-				var sv = getStreetViewService();
-				sv.getPanoramaByLocation(latLng, 50, function(data, status) {
-					if (status == google.maps.StreetViewStatus.OK) {
-						var markerPanoID = data.location.pano;
-						panorama = map.getStreetView();
-						panorama.setPano(markerPanoID);
-						panorama.setPov({
-							heading: 270,
-							pitch: 0,
-							zoom: 1
-						});
-						panorama.setVisible(true);
-					} else {
-						//TODO: there should be a callback
-						if(errorHandlerCallback){
-							errorHandlerCallback(caller)
-						}else{
-							alert(messages["noStreetViewAvailable"])
+		showStreetView: function (address, map, settings, errorHandlerCallback, caller) {
+			var povSettings = {};
+			povSettings.heading = settings.heading || 0;
+			povSettings.pitch = settings.pitch || 0;
+			povSettings.zoom = settings.zoom || 1;
+			if (settings.panoramaId) {
+				showStreetViewForConfiguration(map, settings.panoramaId, povSettings);
+			} else {
+				codeLatLng(address, function(results) {
+					var latLng = results[0].geometry.location;
+					var sv = getStreetViewService();
+					sv.getPanoramaByLocation(latLng, 50, function(data, status) {
+						if (status == google.maps.StreetViewStatus.OK) {
+							showStreetViewForConfiguration(map, data.location.pano, povSettings);
+						} else {
+							if (errorHandlerCallback) {
+								errorHandlerCallback(caller)
+							} else {
+								alert(messages["noStreetViewAvailable"])
+							}
 						}
-					}
+					});
 				});
-			});
+			}
 		},
 
 		directionSearchHandler:function (map, directionDiv, originDomId, destinationDomId, travelModeDomId, unitSystemDomId, avoidHighways, avoidTolls) {

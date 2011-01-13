@@ -91,9 +91,9 @@ class MapTagLib {
 	}
 
 	def searchAddressInput = {attrs ->
-//		checkRequiredAttributes("searchAddressInput", attrs, ["map"])
 		String inputElementId = attrs.id ?: attrs.name
 		String language = attrs.remove("language")
+		String region = attrs.remove("region")
 		Boolean selectFirst = attrs.remove('selectFirst') ?: false
 		int minChars = attrs.remove('minChars')?.toInteger() ?: 3
 		int cacheLength = attrs.remove('cacheLength')?.toInteger() ?: 50
@@ -115,8 +115,10 @@ class MapTagLib {
 		out << g.textField(attrs)
 
 		Map searchAutoCompleteSettingsMap = [selectFirst: selectFirst, minChars: minChars, cacheLength: cacheLength, width: width, scroll: scroll, scrollHeight: scrollHeight]
-		//Todo: use lang settings
-//		if(language){searchAutoCompleteSettingsMap+=['lang':language]}
+
+		if(language){searchAutoCompleteSettingsMap+=['lang':"'$language'"]}
+		if(region){searchAutoCompleteSettingsMap+=['region':"'$region'"]}
+
 		String searchSettings = "{" + searchAutoCompleteSettingsMap.collect { k, v -> "$k:$v"}.join(",") + "}"
 		out << """
 		<script type="text/javascript">
@@ -163,7 +165,20 @@ class MapTagLib {
 		String errorHandler=attrs.remove('errorHandler');
 		String errorHandlerStatement=errorHandler?",${errorHandler},this":''
 
-		String onClickHandler = "googleMapManager.showStreetView('${address}', ${map}${errorHandlerStatement});"
+		String pitch=attrs.remove('pitch')
+		String heading=attrs.remove('heading')
+		String zoom=attrs.remove('zoom')
+		String panoramaId=attrs.remove("panoramaId")
+
+		Map streetViewSettings = [:]
+		if(pitch){streetViewSettings['pitch']=pitch}
+		if(heading){streetViewSettings['heading']=heading}
+		if(zoom){streetViewSettings['zoom']=zoom}
+		if(panoramaId){streetViewSettings['panoramaId']=panoramaId}
+
+		String streetViewSettingsMap = ",{" + streetViewSettings.collect { k, v -> "$k:$v"}.join(",") + "}"
+
+		String onClickHandler = "googleMapManager.showStreetView('${address}', ${map}${streetViewSettingsMap}${errorHandlerStatement});"
 
 		out << "<a href=\"#\" onClick=\"${onClickHandler}\" >${body()}</a>"
 	}

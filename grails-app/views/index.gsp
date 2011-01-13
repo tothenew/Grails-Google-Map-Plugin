@@ -38,7 +38,7 @@
 		<td colspan="2">
 			Search : <googleMap:searchAddressInput name="searchAddress" map="googleMap" width="500"
 					minChars="3" scrollHeight="400"
-					style="width:90%;" language="en"
+					style="width:90%;" language="hi"
 					onComplete="testFunction"/> <br/>
 		</td>
 	</tr>
@@ -66,7 +66,8 @@
 
 				<googleMap:hideDirection map="googleMap">Hide direction from map only</googleMap:hideDirection><br/>
 				<googleMap:hideDirection map="googleMap" panel="directionText">Hide direction from map and empty textual direction</googleMap:hideDirection><br/>
-				<googleMap:streetViewLink map="googleMap" address="42.345573,-71.098326">Show Street view for 42.345573,-71.098326</googleMap:streetViewLink><br/>
+
+				<googleMap:streetViewLink map="googleMap" address="42.345573,-71.098326" pitch="10" zoom="2">Show Street view for 42.345573,-71.098326</googleMap:streetViewLink><br/>
 
 				<googleMap:streetViewLink map="googleMap" address="761 Harrison Avenue, Boston, Massachusetts, United States">Show Street view for 761 Harrison Avenue, Boston, Massachusetts, United States</googleMap:streetViewLink><br/>
 
