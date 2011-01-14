@@ -99,18 +99,6 @@ function GoogleMapManager() {
 		}
 	}
 
-	function bindPanoramaDomElements(map) {
-		var panorama = map.getStreetView();
-
-		google.maps.event.addListener(panorama, 'pov_changed', function() {
-			updatePovDataAndPano(panorama.getPov(), panorama.getPano());
-		});
-
-		google.maps.event.addListener(panorama, 'pano_changed', function() {
-			updatePanoId(panorama.getPano());
-		});
-	}
-
 	function getHomeMarker(map) {
 		var marker = null;
 		if (mapConfiguration[map]) {
@@ -291,26 +279,22 @@ function GoogleMapManager() {
 			});
 		},
 
-		createMap: function (mapDivId, configurationForMap, homeMarkerVisible, latitudeDomId, longitudeDomId) {
+		createMap: function (mapDivId, configurationForMap, homeMarker, latitudeDomId, longitudeDomId) {
+			configurationForMap['center'] = homeMarker.getPosition();
 			var tempMap = new google.maps.Map(document.getElementById(mapDivId), configurationForMap);
 			mapConfiguration[tempMap] = new Object();
 			mapConfiguration[tempMap].markerManager = null;
 
-			var homeMarker;
-			homeMarker = createMarker(tempMap, configurationForMap['center']);
+			homeMarker.setMap(tempMap);
 
-			if (!homeMarkerVisible) {
-				homeMarker.setVisible(false);
-			}
 			mapConfiguration[tempMap].infoWindow = new google.maps.InfoWindow({
 				content:"",
 				size: new google.maps.Size(100, 150)
 			});
 
 			bindLatLngDomElements(homeMarker, latitudeDomId, longitudeDomId);
-			//bindPanoramaDomElements(tempMap);
-			mapConfiguration[tempMap].homeMarker = homeMarker;
 
+			mapConfiguration[tempMap].homeMarker = homeMarker;
 			return tempMap;
 		},
 

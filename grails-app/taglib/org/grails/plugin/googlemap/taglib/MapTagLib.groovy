@@ -1,6 +1,6 @@
 package org.grails.plugin.googlemap.taglib
 
-import com.intelligrape.map.misc.MapMarker
+import grails.converters.JSON
 
 /*
 *
@@ -39,55 +39,53 @@ class MapTagLib {
 		checkRequiredAttributes("map", attrs, ["name", "mapDivId"])
 
 		String name = attrs.remove("name")
-		String panorama = attrs.remove("panorama")?:'panorama'
-		String mapDivId=attrs.remove("mapDivId")
+		String panorama = attrs.remove("panorama") ?: 'panorama'
+		String mapDivId = attrs.remove("mapDivId")
 		String zoomString = attrs.remove("zoom")
 		Integer zoom = zoomString ? zoomString.toInteger() : config.map.zoom
 		String mapTypeId = attrs.remove("mapTypeId") ?: config.map.mapTypeId
-		Boolean showHomeMarker = attrs.remove("showHomeMarker")?.toBoolean() ?: false
 
-		String latitudeId=attrs.remove("latitudeId")
-		String longitudeId=attrs.remove("longitudeId")
+		String latitudeId = attrs.remove("latitudeId")
+		String longitudeId = attrs.remove("longitudeId")
 
-		MapMarker homeMarker=attrs.remove('homeMarker');
+		Map homeMarker = attrs.remove('homeMarker');
+		String latitude = homeMarker["latitude"]
+		String longitude = homeMarker["longitude"]
+		homeMarker = homeMarker.findAll {(it.key in ["zIndex", "draggable", "visible", "clickable", "flat", "raiseOnDrag", "title", "icon", "shadow", "cursor", "content"])}
 
-		String latitude = attrs.remove("latitude") ?: config.map.center.lat
-		String longitude = attrs.remove("longitude") ?: config.map.center.lng
+		String homeMarkerJavaScript = "var ${name}_homeMarker=new google.maps.Marker(${homeMarker as JSON});"
+		homeMarkerJavaScript += "${name}_homeMarker.setPosition(new google.maps.LatLng(${latitude}, ${longitude}));"
 
-		if(homeMarker){
-			latitude=homeMarker.latitude
-			longitude=homeMarker.longitude
+
+		def mapEventHandlers = attrs.remove("mapEventHandlers")
+
+		String eventsScript = ""
+
+		mapEventHandlers.each {event, handler ->
+			eventsScript += "google.maps.event.addListener(${name}, '${event}', ${handler});\n"
 		}
 
-		def mapEventHandlers =attrs.remove("mapEventHandlers")
+		def streetViewEventHandlers = attrs.remove("streetViewEventHandlers")
 
-		String eventsScript=""
-
-		mapEventHandlers.each{event, handler->
-			eventsScript+="google.maps.event.addListener(${name}, '${event}', ${handler});\n"
-		}
-
-		def streetViewEventHandlers=attrs.remove("streetViewEventHandlers")
-
-		streetViewEventHandlers.each{event, handler->
-			eventsScript+="google.maps.event.addListener(${panorama}, '${event}', ${handler});\n"
+		streetViewEventHandlers.each {event, handler ->
+			eventsScript += "google.maps.event.addListener(${panorama}, '${event}', ${handler});\n"
 		}
 
 		List mapSettingsList = attrs.collect { k, v -> "$k:$v"}
-		mapSettingsList.addAll(["mapTypeId:${mapTypeId}", "zoom:${zoom}", "center: new google.maps.LatLng(${latitude}, ${longitude})"])
+		mapSettingsList.addAll(["mapTypeId:${mapTypeId}", "zoom:${zoom}"])
 		String mapSettings = mapSettingsList.join(", ")
 
 		out << """
 		<script type="text/javascript">
 				var ${name};
+				${homeMarkerJavaScript}
 				jQuery(function () {
-				${name}=googleMapManager.createMap('${mapDivId}',{${mapSettings}}, ${showHomeMarker},'${latitudeId}', '${longitudeId}')
+				${name}=googleMapManager.createMap('${mapDivId}',{${mapSettings}}, ${name}_homeMarker,'${latitudeId}', '${longitudeId}')
 				var ${panorama}=${name}.getStreetView();
 				${eventsScript}
 				});
 		</script>
 		 """
-
 	}
 
 	def searchAddressInput = {attrs ->
@@ -116,8 +114,8 @@ class MapTagLib {
 
 		Map searchAutoCompleteSettingsMap = [selectFirst: selectFirst, minChars: minChars, cacheLength: cacheLength, width: width, scroll: scroll, scrollHeight: scrollHeight]
 
-		if(language){searchAutoCompleteSettingsMap+=['lang':"'$language'"]}
-		if(region){searchAutoCompleteSettingsMap+=['region':"'$region'"]}
+		if (language) {searchAutoCompleteSettingsMap += ['lang': "'$language'"]}
+		if (region) {searchAutoCompleteSettingsMap += ['region': "'$region'"]}
 
 		String searchSettings = "{" + searchAutoCompleteSettingsMap.collect { k, v -> "$k:$v"}.join(",") + "}"
 		out << """
@@ -162,19 +160,19 @@ class MapTagLib {
 		checkRequiredAttributes("streetViewLink", attrs, ["map", "address"])
 		String map = attrs.remove("map")
 		String address = attrs.remove("address")		 // address or (lat, long) pair
-		String errorHandler=attrs.remove('errorHandler');
-		String errorHandlerStatement=errorHandler?",${errorHandler},this":''
+		String errorHandler = attrs.remove('errorHandler');
+		String errorHandlerStatement = errorHandler ? ",${errorHandler},this" : ''
 
-		String pitch=attrs.remove('pitch')
-		String heading=attrs.remove('heading')
-		String zoom=attrs.remove('zoom')
-		String panoramaId=attrs.remove("panoramaId")
+		String pitch = attrs.remove('pitch')
+		String heading = attrs.remove('heading')
+		String zoom = attrs.remove('zoom')
+		String panoramaId = attrs.remove("panoramaId")
 
 		Map streetViewSettings = [:]
-		if(pitch){streetViewSettings['pitch']=pitch}
-		if(heading){streetViewSettings['heading']=heading}
-		if(zoom){streetViewSettings['zoom']=zoom}
-		if(panoramaId){streetViewSettings['panoramaId']=panoramaId}
+		if (pitch) {streetViewSettings['pitch'] = pitch}
+		if (heading) {streetViewSettings['heading'] = heading}
+		if (zoom) {streetViewSettings['zoom'] = zoom}
+		if (panoramaId) {streetViewSettings['panoramaId'] = panoramaId}
 
 		String streetViewSettingsMap = ",{" + streetViewSettings.collect { k, v -> "$k:$v"}.join(",") + "}"
 
@@ -193,32 +191,32 @@ class MapTagLib {
 		out << "<a href=\"#\" onClick=\"${onClickHandler}\" >${body()}</a>"
 	}
 
-	def updateMarkersOnMapFunction={attrs->
+	def updateMarkersOnMapFunction = {attrs ->
 		checkRequiredAttributes("updateMarkersOnMapFunction", attrs, ["map", "markers"])
 		String map = attrs.remove("map")
 		def markers = attrs.remove("markers")
-		Boolean clearOld=attrs.remove("clearOld")?:true
+		Boolean clearOld = attrs.remove("clearOld") ?: true
 
 		String onClickHandler = "googleMapManager.updateMarkersOnMap(${map}, ${markers}, ${clearOld});"
-		out<<onClickHandler
+		out << onClickHandler
 	}
 
-	def updateMarkersOnMapLink={attrs, body->
+	def updateMarkersOnMapLink = {attrs, body ->
 		out << "<a href=\"#\" onClick=\"${googleMap.updateMarkersOnMapFunction(attrs)}\" >${body()}</a>"
 	}
 
-	def directionSearchHandler={attrs->
-		checkRequiredAttributes("directionSearchHandler", attrs, ["map", "originDomId","destinationDomId"])
-		String map=attrs.remove('map')
-		String panel=attrs.remove('panel')
-		String originDomId=attrs.remove("originDomId")
-		String destinationDomId=attrs.remove("destinationDomId")
-		String travelModeDomId=attrs.remove("travelModeDomId")
-		String unitSystemDomId=attrs.remove("unitSystemDomId")
-		Boolean avoidHighways=attrs.remove("avoidHighways")?:false
-		Boolean avoidTolls=attrs.remove("avoidTolls")?:false
+	def directionSearchHandler = {attrs ->
+		checkRequiredAttributes("directionSearchHandler", attrs, ["map", "originDomId", "destinationDomId"])
+		String map = attrs.remove('map')
+		String panel = attrs.remove('panel')
+		String originDomId = attrs.remove("originDomId")
+		String destinationDomId = attrs.remove("destinationDomId")
+		String travelModeDomId = attrs.remove("travelModeDomId")
+		String unitSystemDomId = attrs.remove("unitSystemDomId")
+		Boolean avoidHighways = attrs.remove("avoidHighways") ?: false
+		Boolean avoidTolls = attrs.remove("avoidTolls") ?: false
 
-		out<<"googleMapManager.directionSearchHandler(${map},'${panel}','${originDomId}','${destinationDomId}','${travelModeDomId}', '${unitSystemDomId}',${avoidHighways}, ${avoidTolls})"
+		out << "googleMapManager.directionSearchHandler(${map},'${panel}','${originDomId}','${destinationDomId}','${travelModeDomId}', '${unitSystemDomId}',${avoidHighways}, ${avoidTolls})"
 
 	}
 

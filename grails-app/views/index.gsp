@@ -1,4 +1,4 @@
-<%@ page import="com.intelligrape.map.misc.MapMarker" contentType="text/html;charset=UTF-8" %>
+<%@ page contentType="text/html;charset=UTF-8" %>
 <html>
 <head>
 	%{--<g:javascript library="jquery" plugin="jquery"/>--}%
@@ -44,13 +44,11 @@
 	</tr>
 	<tr>
 		<td style="vertical-align:top; text-align:left;">
-			<g:set var="homeMarker" value="${new MapMarker(latitude: 40.72968163306612, longitude:-73.991138935)}"/>
 			<googleMap:map
 					name="googleMap"
 					mapDivId="map_canvas"
 					zoom="18"
-					homeMarker="${homeMarker}"
-					showHomeMarker="true"
+					homeMarker="[latitude: 40.729883, longitude: -73.990986, draggable: false, visible:true, content: 'Liberty State Park']"
 					mapTypeId="google.maps.MapTypeId.ROADMAP"
 					latitudeId="latitude"
 					longitudeId="longitude"
@@ -97,7 +95,7 @@
 						<g:message code="directionSearch.origin.text" default="Origin"/> :
 					</td>
 					<td>
-						<googleMap:searchAddressInput name="origin" size="42" class="inputType" value="Darbhanga, Bihar, India"/>
+						<googleMap:searchAddressInput name="origin" size="42" class="inputType" value=""/>
 					</td>
 				</tr>
 				<tr>
@@ -105,7 +103,7 @@
 						<g:message code="directionSearch.destination.text" default="Destination"/> :
 					</td>
 					<td>
-						<googleMap:searchAddressInput name="destination" size="42" class="inputType" value="Madhubani, Bihar, India"/>
+						<googleMap:searchAddressInput name="destination" size="42" class="inputType" value=""/>
 					</td>
 				</tr>
 				<tr>
