@@ -22,16 +22,27 @@ class MapTagLib {
 			mapOptions += [language: language]
 		}
 
-		out << """
-		<script type="text/javascript" src="${resource(dir: 'js', file: 'map.init.js')}"></script>
-		<script type="text/javascript" src="${grailsApplication.config.map.api.url}?${mapOptions.collect {k, v -> k + "=" + v}.join("&")}"></script>
-		 """
+		def writer = out
+
+		writer << javascript(library: "jquery")
+
+		writer << '<script type="text/javascript" src="'
+		writer << grailsApplication.config.map.api.url
+		writer << '?'
+		writer << mapOptions.collect {k, v -> k + "=" + v.encodeAsHTML()}.join("&")
+		writer.println '"></script>'
+
+		writer << javascript(library: "map.init")
+
+
 		if (includeAddressAutoComplete) {
-			out << """
-			<script type="text/javascript" src="${resource(dir: 'js/jquery-autocomplete', file: 'geo_autocomplete.js')}"></script>
-			<script type="text/javascript" src="${resource(dir: 'js/jquery-autocomplete', file: 'jquery.autocomplete_geomod.js')}"></script>
-	    <link rel="stylesheet" type="text/css" href="${resource(dir: 'css/jquery-autocomplete', file: 'jquery.autocomplete.css')}"/>
-			 """
+			writer << javascript(library: "geo_autocomplete")
+			writer << javascript(library: "jquery.autocomplete_geomod")
+
+			writer << '<link type="text/css" rel="stylesheet" href="'
+			writer << grailsApplication.config.map.api.url
+			writer << resource(dir: 'css', file: 'jquery.autocomplete.css')
+			writer.println '" />'
 		}
 	}
 

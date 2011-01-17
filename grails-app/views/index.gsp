@@ -1,8 +1,7 @@
 <%@ page contentType="text/html;charset=UTF-8" %>
 <html>
 <head>
-	%{--<g:javascript library="jquery" plugin="jquery"/>--}%
-	<script type="text/javascript" src="${resource(dir: 'js/jquery', file: 'jquery-1.4.3.js')}"></script>
+	<googleMap:init version="3.2" sensor="false" addressAutoComplete="true"/>
 	<script type="text/javascript">
 		function testFunction(e, d) {
 //			alert(d);
@@ -29,7 +28,6 @@
 		];
 
 	</script>
-	<googleMap:init version="3.2" sensor="false" addressAutoComplete="true"/>
 	<title>Google Map Demo</title>
 </head>
 <body>
