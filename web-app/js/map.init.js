@@ -181,6 +181,28 @@ function GoogleMapManager() {
 		panorama.setVisible(true);
 	}
 
+	function computeAngle(endLatLng, startLatLng) {
+		var DEGREE_PER_RADIAN = 57.2957795;
+		var RADIAN_PER_DEGREE = 0.017453;
+
+		var dlat = endLatLng.lat() - startLatLng.lat();
+		var dlng = endLatLng.lng() - startLatLng.lng();
+		// We multiply dlng with cos(endLat), since the two points are very closeby,
+		// so we assume their cos values are approximately equal.
+		var yaw = Math.atan2(dlng * Math.cos(endLatLng.lat() * RADIAN_PER_DEGREE), dlat) * DEGREE_PER_RADIAN;
+		return wrapAngle(yaw);
+	}
+
+	function wrapAngle(angle) {
+		if (angle >= 360) {
+			angle -= 360;
+		} else if (angle < 0) {
+			angle += 360;
+		}
+		return angle;
+	}
+
+
 	return {
 
 		initAutoComplete:function(inputSelector, settings, callback) {
@@ -221,7 +243,8 @@ function GoogleMapManager() {
 			jQuery('#' + streetViewDiv).empty();
 		},
 
-		showStreetView: function (address, map, settings, errorHandlerCallback, caller) {
+		showStreetView: function (address, map, settings, successHandler, errorHandlerCallback, caller) {
+			var radius=settings.radius||100; // look into circle of radius x metres
 			var povSettings = {};
 			povSettings.heading = settings.heading || 0;
 			povSettings.pitch = settings.pitch || 0;
@@ -232,9 +255,14 @@ function GoogleMapManager() {
 				codeLatLng(address, function(results) {
 					var latLng = results[0].geometry.location;
 					var sv = getStreetViewService();
-					sv.getPanoramaByLocation(latLng, 50, function(data, status) {
+					sv.getPanoramaByLocation(latLng, radius, function(data, status) {
 						if (status == google.maps.StreetViewStatus.OK) {
-							showStreetViewForConfiguration(map, data.location.pano, povSettings);
+							if (successHandler) {
+								successHandler(data, status, caller)
+							}else{
+								povSettings.heading=computeAngle(mapConfiguration[map].homeMarker.getPosition(), data.location.latLng) || povSettings.heading;
+								showStreetViewForConfiguration(map, data.location.pano, povSettings);
+							}
 						} else {
 							if (errorHandlerCallback) {
 								errorHandlerCallback(caller)
@@ -352,6 +380,14 @@ function GoogleMapManager() {
 				marker = mapConfiguration[map].homeMarker;
 			}
 			return marker;
+		},
+
+		getInfoWindow:	function (map) {
+			var infoWindow = null;
+			if (mapConfiguration[map]) {
+				infoWindow = mapConfiguration[map].infoWindow;
+			}
+			return infoWindow;
 		}
 
 	}

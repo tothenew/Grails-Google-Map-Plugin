@@ -11,20 +11,24 @@ class MapTagLib {
 	static namespace = "googleMap"
 
 	def config = grailsApplication.config
+	def pluginManager
 
 	def init = {attrs ->
-		String version = attrs.remove('version') ?: config.map.api.version
-		String sensor = attrs.remove('sensor') ?: config.map.api.sensor
-		String language = attrs.remove('language') ?: config.map.api.language ?: null
+		checkRequiredAttributes("init", attrs,["sensor"])
+		String sensor = attrs.remove('sensor')
+		String version = attrs.remove('version')
+		String language = attrs.remove('language')
 		Boolean includeAddressAutoComplete = attrs.remove("addressAutoComplete") ?: false
-		Map mapOptions = [version: version, sensor: sensor]
+		Map mapOptions = [sensor: sensor]
 		if (language) {
 			mapOptions += [language: language]
 		}
+		if (version) {
+			mapOptions += [version: version]
+		}
 
 		def writer = out
-
-		writer << javascript(library: "jquery")
+//		writer << javascript(library: "jquery", plugin:'google-map')
 
 		writer << '<script type="text/javascript" src="'
 		writer << grailsApplication.config.map.api.url
@@ -32,16 +36,14 @@ class MapTagLib {
 		writer << mapOptions.collect {k, v -> k + "=" + v.encodeAsHTML()}.join("&")
 		writer.println '"></script>'
 
-		writer << javascript(library: "map.init")
-
+		writer << javascript(library: "map.init", plugin:'google-map')
 
 		if (includeAddressAutoComplete) {
-			writer << javascript(library: "geo_autocomplete")
-			writer << javascript(library: "jquery.autocomplete_geomod")
+			writer << javascript(library: "geo_autocomplete", plugin:"google-map")
+			writer << javascript(library: "jquery.autocomplete_geomod", plugin:"google-map")
 
 			writer << '<link type="text/css" rel="stylesheet" href="'
-			writer << grailsApplication.config.map.api.url
-			writer << resource(dir: 'css', file: 'jquery.autocomplete.css')
+			writer << resource(dir: pluginContextPath, file: 'css/jquery.autocomplete.css')
 			writer.println '" />'
 		}
 	}
@@ -50,7 +52,8 @@ class MapTagLib {
 		checkRequiredAttributes("map", attrs, ["name", "mapDivId"])
 
 		String name = attrs.remove("name")
-		String panorama = attrs.remove("panorama") ?: 'panorama'
+		String panorama = attrs.remove("panorama") ?: "${name}_panorama"
+		String homeMarkerName = attrs.remove("homeMarkerName") ?: "${name}_homeMarker"
 		String mapDivId = attrs.remove("mapDivId")
 		String zoomString = attrs.remove("zoom")
 		Integer zoom = zoomString ? zoomString.toInteger() : config.map.zoom
@@ -62,11 +65,12 @@ class MapTagLib {
 		Map homeMarker = attrs.remove('homeMarker');
 		String latitude = homeMarker["latitude"]
 		String longitude = homeMarker["longitude"]
+
+		String homeMarkerClickHandler=homeMarker.remove("clickHandler")
 		homeMarker = homeMarker.findAll {(it.key in ["zIndex", "draggable", "visible", "clickable", "flat", "raiseOnDrag", "title", "icon", "shadow", "cursor", "content"])}
 
-		String homeMarkerJavaScript = "var ${name}_homeMarker=new google.maps.Marker(${homeMarker as JSON});"
-		homeMarkerJavaScript += "${name}_homeMarker.setPosition(new google.maps.LatLng(${latitude}, ${longitude}));"
-
+		String homeMarkerJavaScript = "var ${homeMarkerName}=new google.maps.Marker(${homeMarker as JSON});"
+		homeMarkerJavaScript += "${homeMarkerName}.setPosition(new google.maps.LatLng(${latitude}, ${longitude}));"
 
 		def mapEventHandlers = attrs.remove("mapEventHandlers")
 
@@ -75,7 +79,9 @@ class MapTagLib {
 		mapEventHandlers.each {event, handler ->
 			eventsScript += "google.maps.event.addListener(${name}, '${event}', ${handler});\n"
 		}
-
+		if(homeMarkerClickHandler){
+			eventsScript += "google.maps.event.addListener(${homeMarkerName}, 'click', ${homeMarkerClickHandler});\n"
+		}
 		def streetViewEventHandlers = attrs.remove("streetViewEventHandlers")
 
 		streetViewEventHandlers.each {event, handler ->
@@ -88,11 +94,12 @@ class MapTagLib {
 
 		out << """
 		<script type="text/javascript">
-				var ${name};
+				var ${name} , ${panorama};
+
 				${homeMarkerJavaScript}
 				jQuery(function () {
-				${name}=googleMapManager.createMap('${mapDivId}',{${mapSettings}}, ${name}_homeMarker,'${latitudeId}', '${longitudeId}')
-				var ${panorama}=${name}.getStreetView();
+				${name}=googleMapManager.createMap('${mapDivId}',{${mapSettings}}, ${homeMarkerName},'${latitudeId}', '${longitudeId}')
+				${panorama}=${name}.getStreetView();
 				${eventsScript}
 				});
 		</script>
@@ -171,6 +178,8 @@ class MapTagLib {
 		checkRequiredAttributes("streetViewLink", attrs, ["map", "address"])
 		String map = attrs.remove("map")
 		String address = attrs.remove("address")		 // address or (lat, long) pair
+		String successHandler=attrs.remove("successHandler")
+		String successHandlerStatement = successHandler ? ",${successHandler}" : ''
 		String errorHandler = attrs.remove('errorHandler');
 		String errorHandlerStatement = errorHandler ? ",${errorHandler},this" : ''
 
@@ -187,7 +196,7 @@ class MapTagLib {
 
 		String streetViewSettingsMap = ",{" + streetViewSettings.collect { k, v -> "$k:$v"}.join(",") + "}"
 
-		String onClickHandler = "googleMapManager.showStreetView('${address}', ${map}${streetViewSettingsMap}${errorHandlerStatement});"
+		String onClickHandler = "googleMapManager.showStreetView('${address}', ${map}${streetViewSettingsMap}${successHandlerStatement}${errorHandlerStatement});"
 
 		out << "<a href=\"#\" onClick=\"${onClickHandler}\" >${body()}</a>"
 	}

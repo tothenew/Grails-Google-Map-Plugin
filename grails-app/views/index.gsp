@@ -1,6 +1,7 @@
 <%@ page contentType="text/html;charset=UTF-8" %>
 <html>
 <head>
+	<g:javascript library="jquery" />
 	<googleMap:init version="3.2" sensor="false" addressAutoComplete="true"/>
 	<script type="text/javascript">
 		function testFunction(e, d) {
