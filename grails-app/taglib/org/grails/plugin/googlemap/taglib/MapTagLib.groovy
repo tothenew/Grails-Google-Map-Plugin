@@ -14,7 +14,7 @@ class MapTagLib {
 	def pluginManager
 
 	def init = {attrs ->
-		checkRequiredAttributes("init", attrs,["sensor"])
+		checkRequiredAttributes("init", attrs, ["sensor"])
 		String sensor = attrs.remove('sensor')
 		String version = attrs.remove('version')
 		String language = attrs.remove('language')
@@ -36,11 +36,11 @@ class MapTagLib {
 		writer << mapOptions.collect {k, v -> k + "=" + v.encodeAsHTML()}.join("&")
 		writer.println '"></script>'
 
-		writer << javascript(library: "map.init", plugin:'google-map')
+		writer << javascript(library: "map.init", plugin: 'google-map')
 
 		if (includeAddressAutoComplete) {
-			writer << javascript(library: "geo_autocomplete", plugin:"google-map")
-			writer << javascript(library: "jquery.autocomplete_geomod", plugin:"google-map")
+			writer << javascript(library: "geo_autocomplete", plugin: "google-map")
+			writer << javascript(library: "jquery.autocomplete_geomod", plugin: "google-map")
 
 			writer << '<link type="text/css" rel="stylesheet" href="'
 			writer << resource(dir: pluginContextPath, file: 'css/jquery.autocomplete.css')
@@ -66,26 +66,19 @@ class MapTagLib {
 		String latitude = homeMarker["latitude"]
 		String longitude = homeMarker["longitude"]
 
-		String homeMarkerClickHandler=homeMarker.remove("clickHandler")
+		String eventsScript = ""
+
+		Map mapEventHandlers = attrs.remove("mapEventHandlers")
+		Map homeMarkerEventHandlers = homeMarker.remove("eventHandler")
+		Map streetViewEventHandlers = attrs.remove("streetViewEventHandlers")
+
 		homeMarker = homeMarker.findAll {(it.key in ["zIndex", "draggable", "visible", "clickable", "flat", "raiseOnDrag", "title", "icon", "shadow", "cursor", "content"])}
 
 		String homeMarkerJavaScript = "var ${homeMarkerName}=new google.maps.Marker(${homeMarker as JSON});"
 		homeMarkerJavaScript += "${homeMarkerName}.setPosition(new google.maps.LatLng(${latitude}, ${longitude}));"
 
-		def mapEventHandlers = attrs.remove("mapEventHandlers")
-
-		String eventsScript = ""
-
-		mapEventHandlers.each {event, handler ->
-			eventsScript += "google.maps.event.addListener(${name}, '${event}', ${handler});\n"
-		}
-		if(homeMarkerClickHandler){
-			eventsScript += "google.maps.event.addListener(${homeMarkerName}, 'click', ${homeMarkerClickHandler});\n"
-		}
-		def streetViewEventHandlers = attrs.remove("streetViewEventHandlers")
-
-		streetViewEventHandlers.each {event, handler ->
-			eventsScript += "google.maps.event.addListener(${panorama}, '${event}', ${handler});\n"
+		["${name}": mapEventHandlers, "${homeMarkerName}": homeMarkerEventHandlers, "${panorama}": streetViewEventHandlers].each {String googleMapObject, Map eventHandler ->
+			eventsScript += getEventHandlerJavaScript(googleMapObject, eventHandler)
 		}
 
 		List mapSettingsList = attrs.collect { k, v -> "$k:$v"}
@@ -120,11 +113,12 @@ class MapTagLib {
 		String callBackFunctionPassed = attrs.remove('onComplete')
 		String map = attrs.remove("map")
 		String callBackFunction = "function(event, data){"
-		if (callBackFunctionPassed) {
-			callBackFunction += "${callBackFunctionPassed}(event,data);"
-		}
 		if (map) {
 			callBackFunction += "googleMapManager.updateHomeLocationMarker(${map}, jQuery('#${inputElementId}').val());"
+		}
+
+		if (callBackFunctionPassed) {
+			callBackFunction += "${callBackFunctionPassed}(event,data);"
 		}
 		callBackFunction += "}"
 
@@ -178,7 +172,7 @@ class MapTagLib {
 		checkRequiredAttributes("streetViewLink", attrs, ["map", "address"])
 		String map = attrs.remove("map")
 		String address = attrs.remove("address")		 // address or (lat, long) pair
-		String successHandler=attrs.remove("successHandler")
+		String successHandler = attrs.remove("successHandler")
 		String successHandlerStatement = successHandler ? ",${successHandler}" : ''
 		String errorHandler = attrs.remove('errorHandler');
 		String errorHandlerStatement = errorHandler ? ",${errorHandler},this" : ''
@@ -245,5 +239,13 @@ class MapTagLib {
 		if (missingAttributes) {
 			throwTagError("Tag ${tagName} is missing required attribute(s) : [${missingAttributes.join(',')}]")
 		}
+	}
+
+	private String getEventHandlerJavaScript(String googleMapObject, Map eventHandlersMap) {
+		String eventsScript = ""
+		eventHandlersMap.each {event, handler ->
+			eventsScript += "google.maps.event.addListener(${googleMapObject}, '${event}', ${handler});\n"
+		}
+		return eventsScript
 	}
 }

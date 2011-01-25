@@ -128,19 +128,6 @@ function GoogleMapManager() {
 		return streetViewService;
 	}
 
-	function codeLatLng(addressOrLatLng, callBackFunction) {
-		var addressLookup = getGeoCoder();
-		if (addressLookup) {
-			addressLookup.geocode({'address': addressOrLatLng}, function(results, status) {
-				if (status == google.maps.GeocoderStatus.OK) {
-					callBackFunction(results);
-				} else {
-					alert(messages["geoCodingFailed"]);
-				}
-			});
-		}
-	}
-
 	function getMarkerManager(map) {
 		var markerManager = mapConfiguration[map].markerManager;
 		if (!markerManager) {
@@ -218,7 +205,7 @@ function GoogleMapManager() {
 			addressLookUp.geocode({'address': addressOrLatLng}, function(results, status) {
 				if (status == google.maps.GeocoderStatus.OK) {
 					if (results[0]) {
-						var marker = getHomeMarker(map)
+						var marker = getHomeMarker(map);
 						marker.setPosition(results[0].geometry.location);
 						map.setCenter(results[0].geometry.location);
 					} else {
@@ -252,7 +239,7 @@ function GoogleMapManager() {
 			if (settings.panoramaId) {
 				showStreetViewForConfiguration(map, settings.panoramaId, povSettings);
 			} else {
-				codeLatLng(address, function(results) {
+				this.codeLatLng(address, function(results) {
 					var latLng = results[0].geometry.location;
 					var sv = getStreetViewService();
 					sv.getPanoramaByLocation(latLng, radius, function(data, status) {
@@ -388,7 +375,19 @@ function GoogleMapManager() {
 				infoWindow = mapConfiguration[map].infoWindow;
 			}
 			return infoWindow;
+		},
+		codeLatLng: function (addressOrLatLng, callBackFunction) {
+		var addressLookup = getGeoCoder();
+		if (addressLookup) {
+			addressLookup.geocode({'address': addressOrLatLng}, function(results, status) {
+				if (status == google.maps.GeocoderStatus.OK) {
+					callBackFunction(results);
+				} else {
+					alert(messages["geoCodingFailed"]);
+				}
+			});
 		}
+	}
 
 	}
 }
