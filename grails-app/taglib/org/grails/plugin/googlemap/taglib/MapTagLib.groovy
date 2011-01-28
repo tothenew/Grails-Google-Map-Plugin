@@ -46,6 +46,18 @@ class MapTagLib {
 			writer << resource(dir: pluginContextPath, file: 'css/jquery.autocomplete.css')
 			writer.println '" />'
 		}
+
+		Map errorMessages=attrs.remove('errorMessages')
+		if(errorMessages){
+			writer.println '<script type="text/javascript">'
+			writer.println 'var error_messages_json={};'
+			errorMessages.collect{errorKey, message->
+				writer.println "error_messages_json['${errorKey}']='${message.encodeAsJavaScript()}';"
+			}
+			writer.println 'googleMapManager.setErrorMessages(error_messages_json);'
+
+			writer.println '</script>'
+		}
 	}
 
 	def map = {attrs ->
@@ -81,7 +93,7 @@ class MapTagLib {
 			eventsScript += getEventHandlerJavaScript(googleMapObject, eventHandler)
 		}
 
-		List mapSettingsList = attrs.collect { k, v -> "$k:$v"}
+		List mapSettingsList = []//attrs.collect { k, v -> "$k:$v"}
 		mapSettingsList.addAll(["mapTypeId:${mapTypeId}", "zoom:${zoom}"])
 		String mapSettings = mapSettingsList.join(", ")
 

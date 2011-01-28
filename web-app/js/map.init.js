@@ -77,11 +77,12 @@ function GoogleMapManager() {
 	streetViewService = null;
 
 	messages = {
-		noGeoCodeResult:"No result found",
-		geoCodingFailed:"GeoCoding failed",
+		noResultError:"No result found",
+		geoCoderError:"GeoCoding failed",
 		noStreetViewAvailable:"No street view available for this location",
 		getDirectionFailed:"Failed to get direction"
 	};
+
 	function createMarker(map, position) {
 		return new google.maps.Marker({map: map, position: position, draggable:true});
 	}
@@ -209,7 +210,7 @@ function GoogleMapManager() {
 						marker.setPosition(results[0].geometry.location);
 						map.setCenter(results[0].geometry.location);
 					} else {
-						alert(messages["noGeoCodeResult"]);
+						alert(messages["noResultError"]);
 					}
 				} else {
 					alert(messages["geoCodingFailed"]);
@@ -233,7 +234,7 @@ function GoogleMapManager() {
 		showStreetView: function (address, map, settings, successHandler, errorHandlerCallback, caller) {
 			var radius=settings.radius||100; // look into circle of radius x metres
 			var povSettings = {};
-			povSettings.heading = settings.heading || 0;
+			povSettings.heading = settings.heading;
 			povSettings.pitch = settings.pitch || 0;
 			povSettings.zoom = settings.zoom || 1;
 			if (settings.panoramaId) {
@@ -247,7 +248,9 @@ function GoogleMapManager() {
 							if (successHandler) {
 								successHandler(data, status, caller)
 							}else{
-								povSettings.heading=computeAngle(mapConfiguration[map].homeMarker.getPosition(), data.location.latLng) || povSettings.heading;
+								if(povSettings.heading){
+									povSettings.heading=computeAngle(mapConfiguration[map].homeMarker.getPosition(), data.location.latLng) || povSettings.heading;
+								}
 								showStreetViewForConfiguration(map, data.location.pano, povSettings);
 							}
 						} else {
@@ -376,6 +379,13 @@ function GoogleMapManager() {
 			}
 			return infoWindow;
 		},
+
+		setErrorMessages:function(errorMessagesMap){
+			jQuery.each(errorMessagesMap, function(key, value){
+				messages[key]=value;
+			});
+		},
+
 		codeLatLng: function (addressOrLatLng, callBackFunction) {
 		var addressLookup = getGeoCoder();
 		if (addressLookup) {
@@ -383,7 +393,7 @@ function GoogleMapManager() {
 				if (status == google.maps.GeocoderStatus.OK) {
 					callBackFunction(results);
 				} else {
-					alert(messages["geoCodingFailed"]);
+					alert(messages["geoCoderError"]);
 				}
 			});
 		}
