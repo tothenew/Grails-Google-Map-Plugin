@@ -248,7 +248,7 @@ function GoogleMapManager() {
 							if (successHandler) {
 								successHandler(data, status, caller)
 							}else{
-								if(povSettings.heading){
+								if(!povSettings.heading){
 									povSettings.heading=computeAngle(mapConfiguration[map].homeMarker.getPosition(), data.location.latLng) || povSettings.heading;
 								}
 								showStreetViewForConfiguration(map, data.location.pano, povSettings);
