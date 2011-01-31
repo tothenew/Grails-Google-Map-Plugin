@@ -264,22 +264,20 @@ function GoogleMapManager() {
 			}
 		},
 
-		directionSearchHandler:function (map, directionDiv, originDomId, destinationDomId, travelModeDomId, unitSystemDomId, avoidHighways, avoidTolls) {
+		directionSearchHandler:function (map, directionDiv, originDomId, destinationDomId, travelModeDomId, unitSystemDomId, successHandler, errorHandler, params) {
 			var origin = jQuery('#' + originDomId).val();
 			var destination = jQuery('#' + destinationDomId).val();
 			var travelMode = getTravelMode(travelModeDomId);
 			var unitSystem = getUnitSystemMode(unitSystemDomId);
-			this.showDirectionHandler(map, directionDiv, origin, destination, travelMode, unitSystem, avoidHighways, avoidTolls);
+			this.showDirectionHandler(map, directionDiv, origin, destination, travelMode, unitSystem, successHandler, errorHandler, params);
 		},
 
-		showDirectionHandler:function (map, directionDiv, origin, destination, travelMode, unitSystem, avoidHighways, avoidTolls) {
+		showDirectionHandler:function (map, directionDiv, origin, destination, travelMode, unitSystem, successHandler, errorHandler, params) {
 			var request = {
 				origin:origin,
 				destination:destination,
 				travelMode: travelMode,
-				unitSystem:unitSystem,
-				avoidHighways:avoidHighways,
-				avoidTolls:avoidTolls
+				unitSystem:unitSystem
 			};
 			directionService = getDirectionService();
 			directionService.route(request, function(response, status) {
@@ -290,8 +288,15 @@ function GoogleMapManager() {
 					}
 					directionRenderer.setMap(map);
 					directionRenderer.setDirections(response);
+					if(successHandler){
+						successHandler(response, status, params);
+					}
 				} else {
-					alert(messages["getDirectionFailed"]);
+					if(errorHandler){
+						errorHandler(params);
+					}else{
+						alert(messages["getDirectionFailed"]);
+					}
 				}
 			});
 		},
