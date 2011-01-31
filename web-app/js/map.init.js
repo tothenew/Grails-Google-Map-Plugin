@@ -138,30 +138,6 @@ function GoogleMapManager() {
 		return markerManager;
 	}
 
-	function getTravelMode(travelModeDomId) {
-		var travelModeValue = jQuery('#' + travelModeDomId).val();
-		if (travelModeValue == 'google.maps.DirectionsTravelMode.DRIVING') {
-			travelModeValue = google.maps.DirectionsTravelMode.DRIVING;
-		} else if (travelModeValue == 'google.maps.DirectionsTravelMode.BICYCLING') {
-			travelModeValue = google.maps.DirectionsTravelMode.BICYCLING;
-		} else if (travelModeValue == 'google.maps.DirectionsTravelMode.WALKING') {
-			travelModeValue = google.maps.DirectionsTravelMode.WALKING;
-		} else {
-			travelModeValue = google.maps.DirectionsTravelMode.WALKING; //Default Mode
-		}
-		return travelModeValue;
-	}
-
-	function getUnitSystemMode(unitSystemModeDomId) {
-		var unitSystemModeValue = jQuery('#' + unitSystemModeDomId).val();
-		if (unitSystemModeValue == 'google.maps.DirectionsUnitSystem.IMPERIAL') {
-			unitSystemModeValue = google.maps.DirectionsUnitSystem.IMPERIAL;
-		} else {
-			unitSystemModeValue = google.maps.DirectionsUnitSystem.METRIC; //Default Mode
-		}
-		return unitSystemModeValue;
-	}
-
 	function showStreetViewForConfiguration(map, markerPanoID, povSettings) {
 		panorama = map.getStreetView();
 		panorama.setPano(markerPanoID);
@@ -264,11 +240,32 @@ function GoogleMapManager() {
 			}
 		},
 
+		getTravelMode:function (travelModeDomId) {
+			var travelModeValue = jQuery('#' + travelModeDomId).val();
+			var convertedTravelMode=google.maps.DirectionsTravelMode.WALKING;
+			if (travelModeValue == 'google.maps.DirectionsTravelMode.DRIVING') {
+				convertedTravelMode = google.maps.DirectionsTravelMode.DRIVING;
+			} else if (travelModeValue == 'google.maps.DirectionsTravelMode.BICYCLING') {
+				convertedTravelMode = google.maps.DirectionsTravelMode.BICYCLING;
+			}
+			return convertedTravelMode;
+		},
+
+		getUnitSystemMode:function (unitSystemModeDomId) {
+			var unitSystemModeValue = jQuery('#' + unitSystemModeDomId).val();
+			if (unitSystemModeValue == 'google.maps.DirectionsUnitSystem.IMPERIAL') {
+				unitSystemModeValue = google.maps.DirectionsUnitSystem.IMPERIAL;
+			} else {
+				unitSystemModeValue = google.maps.DirectionsUnitSystem.METRIC; //Default Mode
+			}
+			return unitSystemModeValue;
+		},
+
 		directionSearchHandler:function (map, directionDiv, originDomId, destinationDomId, travelModeDomId, unitSystemDomId, successHandler, errorHandler, params) {
 			var origin = jQuery('#' + originDomId).val();
 			var destination = jQuery('#' + destinationDomId).val();
-			var travelMode = getTravelMode(travelModeDomId);
-			var unitSystem = getUnitSystemMode(unitSystemDomId);
+			var travelMode = this.getTravelMode(travelModeDomId);
+			var unitSystem = this.getUnitSystemMode(unitSystemDomId);
 			this.showDirectionHandler(map, directionDiv, origin, destination, travelMode, unitSystem, successHandler, errorHandler, params);
 		},
 
