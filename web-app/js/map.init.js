@@ -245,13 +245,12 @@ function GoogleMapManager() {
 					var sv = getStreetViewService();
 					sv.getPanoramaByLocation(latLng, radius, function(data, status) {
 						if (status == google.maps.StreetViewStatus.OK) {
-							if (successHandler) {
-								successHandler(data, status, caller)
-							}else{
 								if(!povSettings.heading){
 									povSettings.heading=computeAngle(mapConfiguration[map].homeMarker.getPosition(), data.location.latLng) || povSettings.heading;
 								}
 								showStreetViewForConfiguration(map, data.location.pano, povSettings);
+							if (successHandler) {
+								successHandler(data, status, caller)
 							}
 						} else {
 							if (errorHandlerCallback) {
@@ -372,6 +371,11 @@ function GoogleMapManager() {
 			return marker;
 		},
 
+		setHomeMarker: function (map, marker){
+			if (mapConfiguration[map]) {
+				mapConfiguration[map].homeMarker=marker;
+			}
+		},
 		getInfoWindow:	function (map) {
 			var infoWindow = null;
 			if (mapConfiguration[map]) {
