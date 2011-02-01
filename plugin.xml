@@ -13,6 +13,8 @@ Integrate Google map version 3 into your grails application
     <resource>UrlMappings</resource>
     <resource>org.grails.plugin.googlemap.taglib.MapTagLib</resource>
   </resources>
-  <dependencies />
+  <dependencies>
+    <plugin name='jquery' version='1.4.2 &gt; *' />
+  </dependencies>
   <behavior />
 </plugin>
