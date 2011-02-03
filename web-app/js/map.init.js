@@ -177,7 +177,7 @@ function GoogleMapManager() {
 			});
 		},
 
-		updateHomeLocationMarker:function (map, addressOrLatLng) {
+		updateHomeLocationMarker:function (map, addressOrLatLng, successHandler, errorHandler) {
 			addressLookUp = getGeoCoder();
 			addressLookUp.geocode({'address': addressOrLatLng}, function(results, status) {
 				if (status == google.maps.GeocoderStatus.OK) {
@@ -392,14 +392,18 @@ function GoogleMapManager() {
 			});
 		},
 
-		codeLatLng: function (addressOrLatLng, callBackFunction) {
+		codeLatLng: function (addressOrLatLng, successHandler, errorHandler) {
 		var addressLookup = getGeoCoder();
 		if (addressLookup) {
 			addressLookup.geocode({'address': addressOrLatLng}, function(results, status) {
 				if (status == google.maps.GeocoderStatus.OK) {
-					callBackFunction(results);
+					successHandler(results);
 				} else {
-					alert(messages["geoCoderError"]);
+					if(errorHandler){
+						errorHandler(results, status);
+					}else{
+						alert(messages["geoCoderError"]);
+					}
 				}
 			});
 		}
